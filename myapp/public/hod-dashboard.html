@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Dashboard - College Management System</title>
+     <link rel="icon" type="image/png" href="jd.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4e73df;
+            --secondary: #6f42c1;
+            --success: #1cc88a;
+            --info: #36b9cc;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --light: #f8f9fc;
+            --dark: #5a5c69;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fc;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .sidebar.active {
+            margin-left: calc(var(--sidebar-width) * -1);
+        }
+        
+        .logo {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo h2 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar nav ul {
+            list-style: none;
+            padding: 10px 0;
+        }
+        
+        .sidebar nav ul li {
+            margin: 5px 0;
+        }
+        
+        .sidebar nav ul li a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar nav ul li a:hover,
+        .sidebar nav ul li.active a {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid white;
+        }
+        
+        .sidebar nav ul li a i {
+            width: 25px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s ease;
+        }
+        
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            height: var(--header-height);
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .menu-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        .welcome-text {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .notification {
+            position: relative;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+        
+        .profile:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .profile-role {
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+        
+        /* Page Content */
+        .page-content {
+            padding: 20px;
+        }
+        
+        /* Dashboard Stats */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon i {
+            color: white;
+        }
+        
+        .stat-card:nth-child(1) .stat-icon { background-color: var(--primary); }
+        .stat-card:nth-child(2) .stat-icon { background-color: var(--success); }
+        .stat-card:nth-child(3) .stat-icon { background-color: var(--info); }
+        .stat-card:nth-child(4) .stat-icon { background-color: var(--warning); }
+        
+        .stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-info p {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        /* Dashboard Sections */
+        .dashboard-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-header h2 {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        .view-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            padding: 15px;
+            background: #f8f9fc;
+            border-radius: 6px;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .stat-change {
+            font-size: 0.8rem;
+        }
+        
+        .stat-change.positive {
+            color: var(--success);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: #f8f9fc;
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .action-btn span {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        /* Activity Feed */
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .activity-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f8f9fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+        
+        .activity-content p {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+        
+        /* Deadline List */
+        .deadline-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .deadline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .deadline-item:last-child {
+            border-bottom: none;
+        }
+        
+        .deadline-date {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #f8f9fc;
+            border-radius: 6px;
+        }
+        
+        .deadline-date .day {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .deadline-date .month {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        
+        .deadline-details {
+            flex: 1;
+        }
+        
+        .deadline-details h4 {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+        
+        .deadline-details p {
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+        
+        .deadline-status {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: #f8f9fc;
+        }
+        
+        .deadline-status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        table th {
+            background-color: #f8f9fc;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        table tr:hover {
+            background-color: #f8f9fc;
+        }
+        
+        /* Button Styles */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a5fce;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #17a673;
+        }
+        
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .page-header h2 {
+            color: var(--dark);
+        }
+        
+        .page-loading {
+            padding: 40px;
+            text-align: center;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        /* Badge Styles */
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                margin-left: calc(var(--sidebar-width) * -1);
+            }
+            
+            .sidebar.active {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .dashboard-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-user-tie"></i> HOD Portal</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li class="active" data-page="dashboard">
+                        <a href="#"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li data-page="students">
+                        <a href="#"><i class="fas fa-user-graduate"></i> <span>Students</span></a>
+                    </li>
+                    <li data-page="faculty">
+                        <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span>Faculty</span></a>
+                    </li>
+                    <li data-page="courses">
+                        <a href="#"><i class="fas fa-book"></i> <span>Courses</span></a>
+                    </li>
+                    <li data-page="timetable">
+                        <a href="#"><i class="fas fa-calendar-alt"></i> <span>Time Table</span></a>
+                    </li>
+                    <li data-page="attendance">
+                        <a href="#"><i class="fas fa-user-check"></i> <span>Attendance</span></a>
+                    </li>
+                    <li data-page="exams">
+                        <a href="#"><i class="fas fa-file-alt"></i> <span>Exams</span></a>
+                    </li>
+                    <li data-page="results">
+                        <a href="#"><i class="fas fa-chart-line"></i> <span>Results</span></a>
+                    </li>
+                    <li data-page="reports">
+                        <a href="#"><i class="fas fa-file-export"></i> <span>Reports</span></a>
+                    </li>
+                    <li data-page="analytics">
+                        <a href="#"><i class="fas fa-chart-pie"></i> <span>Analytics</span></a>
+                    </li>
+                    <li data-page="settings">
+                        <a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a>
+                    </li>
+                    <li>
+                        <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <div class="header-left">
+                    <div class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div>
+                        <h1 id="pageTitle">Dashboard</h1>
+                        <p class="welcome-text">Welcome, <span id="hodName">HOD</span> <span id="department"></span></p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="notification" id="notificationBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge" id="notificationCount">5</span>
+                    </div>
+                    <div class="profile" id="profileMenu">
+                        <img src="https://ui-avatars.com/api/?name=HOD&background=4e73df&color=fff" alt="Profile">
+                        <div class="profile-info">
+                            <span class="profile-name" id="profileName">HOD Name</span>
+                            <span class="profile-role">Head of Department</span>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="page-content" id="mainContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+<div id="submissions-list"></div>
+
+<script>
+async function loadSubmissions(role="faculty") {
+  const res = await fetch(`/api/submissions?role=${role}`);
+  const rows = await res.json();
+
+  let html = "<h2>Submissions</h2><table border='1'><tr><th>Student</th><th>Assignment</th><th>File</th><th>Date</th></tr>";
+  rows.forEach(r => {
+    html += `<tr>
+      <td>${r.student_name}</td>
+      <td>${r.assignment_title}</td>
+      <td><a href="${r.file_path}" target="_blank">${r.file_name}</a></td>
+      <td>${r.submitted_at}</td>
+    </tr>`;
+  });
+  html += "</table>";
+
+  document.getElementById("submissions-list").innerHTML = html;
+}
+
+// Faculty view
+loadSubmissions("hod");
+
+
+// HOD view (use this instead for HOD dashboard)
+// loadSubmissions("hod");
+</script>
+
+    <script>
+        // Check if user is logged in as HOD
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load user data from session
+            const userRole = sessionStorage.getItem('userRole');
+            const username = sessionStorage.getItem('username') || 'HOD';
+            const fullName = sessionStorage.getItem('fullName') || username;
+            const department = sessionStorage.getItem('department') || 'Computer Science';
+            
+            // Redirect to login if not logged in as HOD
+            if (!userRole || userRole !== 'hod') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Update UI with user data
+            document.getElementById('hodName').textContent = fullName;
+            document.getElementById('profileName').textContent = fullName;
+            document.getElementById('department').textContent = `, ${department}`;
+            
+            // Set department in welcome text if available
+            const welcomeText = document.querySelector('.welcome-text');
+            if (welcomeText && department) {
+                welcomeText.textContent += `, ${department}`;
+            }
+
+            // Logout functionality
+            document.getElementById('logout').addEventListener('click', function(e) {
+                e.preventDefault();
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            });
+
+            // Toggle sidebar on mobile
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('active');
+                
+                // Adjust main content margin when sidebar is toggled
+                if (document.querySelector('.sidebar').classList.contains('active')) {
+                    document.querySelector('.main-content').style.marginLeft = '0';
+                } else {
+                    document.querySelector('.main-content').style.marginLeft = '250px';
+                }
+            });
+
+            // Navigation handling
+            document.querySelectorAll('.sidebar li[data-page]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                });
+            });
+
+            // Function to load pages
+            function loadPage(page) {
+                // Update active state
+                document.querySelectorAll('.sidebar li').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('data-page') === page) {
+                        item.classList.add('active');
+                    }
+                });
+
+                // Update page title
+                const pageTitle = document.getElementById('pageTitle');
+                if (pageTitle) {
+                    pageTitle.textContent = page.charAt(0).toUpperCase() + page.slice(1).replace(/-/g, ' ');
+                }
+
+                // Load page content
+                const mainContent = document.getElementById('mainContent');
+                
+                switch(page) {
+                    case 'dashboard':
+                        mainContent.innerHTML = `
+                            <div class="dashboard-stats">
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                                    <div class="stat-info">
+                                        <h3>450</h3>
+                                        <p>Total Students</p>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                                    <div class="stat-info">
+                                        <h3>25</h3>
+                                        <p>Faculty Members</p>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-book"></i></div>
+                                    <div class="stat-info">
+                                        <h3>32</h3>
+                                        <p>Active Courses</p>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                                    <div class="stat-info">
+                                        <h3>92%</h3>
+                                        <p>Avg. Attendance</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-sections">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <h2>Department Overview</h2>
+                                        <a href="#" class="view-all">View Details</a>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-item">
+                                            <div class="stat-label">Total Classes</div>
+                                            <div class="stat-value">45</div>
+                                            <div class="stat-change positive">+5% from last month</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Pass Percentage</div>
+                                            <div class="stat-value">88%</div>
+                                            <div class="stat-change positive">+2% from last term</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Pending Approvals</div>
+                                            <div class="stat-value">7</div>
+                                            <div class="stat-change negative">Action required</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Upcoming Events</div>
+                                            <div class="stat-value">3</div>
+                                            <div class="stat-change">This week</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="section">
+                                    <div class="section-header">
+                                        <h2>Quick Actions</h2>
+                                    </div>
+                                    <div class="quick-actions">
+                                        <a href="#" class="action-btn" data-action="add-faculty">
+                                            <i class="fas fa-user-plus"></i>
+                                            <span>Add Faculty</span>
+                                        </a>
+                                        <a href="#" class="action-btn" data-action="create-timetable">
+                                            <i class="fas fa-calendar-plus"></i>
+                                            <span>Create Time Table</span>
+                                        </a>
+                                        <a href="#" class="action-btn" data-action="generate-report">
+                                            <i class="fas fa-file-export"></i>
+                                            <span>Generate Report</span>
+                                        </a>
+                                        <a href="#" class="action-btn" data-action="announcement">
+                                            <i class="fas fa-bullhorn"></i>
+                                            <span>Make Announcement</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-sections">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <h2>Recent Activities</h2>
+                                        <a href="#" class="view-all">View All</a>
+                                    </div>
+                                    <div class="activity-feed">
+                                        <div class="activity-item">
+                                            <div class="activity-icon"><i class="fas fa-user-plus"></i></div>
+                                            <div class="activity-content">
+                                                <p>New faculty member <strong>Dr. Sharma</strong> joined the department</p>
+                                                <span class="activity-time">2 hours ago</span>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-icon"><i class="fas fa-file-alt"></i></div>
+                                            <div class="activity-content">
+                                                <p>Mid-term exam schedule published for all courses</p>
+                                                <span class="activity-time">1 day ago</span>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                            <div class="activity-content">
+                                                <p><strong>5 students</strong> have attendance below 60%</p>
+                                                <span class="activity-time">2 days ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="section">
+                                    <div class="section-header">
+                                        <h2>Upcoming Deadlines</h2>
+                                        <a href="#" class="view-all">View All</a>
+                                    </div>
+                                    <div class="deadline-list">
+                                        <div class="deadline-item">
+                                            <div class="deadline-date">
+                                                <span class="day">15</span>
+                                                <span class="month">SEP</span>
+                                            </div>
+                                            <div class="deadline-details">
+                                                <h4>Submit Department Budget</h4>
+                                                <p>Annual budget submission to management</p>
+                                            </div>
+                                            <span class="deadline-status warning">Upcoming</span>
+                                        </div>
+                                        <div class="deadline-item">
+                                            <div class="deadline-date">
+                                                <span class="day">20</span>
+                                                <span class="month">SEP</span>
+                                            </div>
+                                            <div class="deadline-details">
+                                                <h4>Faculty Evaluation</h4>
+                                                <p>Complete faculty performance reviews</p>
+                                            </div>
+                                            <span class="deadline-status warning">Upcoming</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'students':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Students</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add New Student
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Program</th>
+                                            <th>Year</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>S001</td>
+                                            <td>Rahul Sharma</td>
+                                            <td>B.Tech CSE</td>
+                                            <td>3rd Year</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>S002</td>
+                                            <td>Priya Verma</td>
+                                            <td>B.Tech IT</td>
+                                            <td>2nd Year</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>S003</td>
+                                            <td>Aman Gupta</td>
+                                            <td>BBA</td>
+                                            <td>1st Year</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'faculty':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Faculty</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add Faculty
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Designation</th>
+                                            <th>Department</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>F001</td>
+                                            <td>Dr. Rajesh Kumar</td>
+                                            <td>Professor</td>
+                                            <td>Computer Science</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>F002</td>
+                                            <td>Dr. Sunita Patel</td>
+                                            <td>Associate Professor</td>
+                                            <td>Information Technology</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>F003</td>
+                                            <td>Prof. Amit Singh</td>
+                                            <td>Assistant Professor</td>
+                                            <td>Computer Science</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'courses':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Courses</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add Course
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                            <th>Credits</th>
+                                            <th>Department</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>CS101</td>
+                                            <td>Introduction to Programming</td>
+                                            <td>4</td>
+                                            <td>Computer Science</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>CS201</td>
+                                            <td>Data Structures</td>
+                                            <td>4</td>
+                                            <td>Computer Science</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>IT101</td>
+                                            <td>Database Management</td>
+                                            <td>3</td>
+                                            <td>Information Technology</td>
+                                            <td><span class="badge-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'timetable':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Time Table</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Generate Time Table
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">
+                                    Weekly Schedule - Computer Science Department
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Time/Day</th>
+                                            <th>Monday</th>
+                                            <th>Tuesday</th>
+                                            <th>Wednesday</th>
+                                            <th>Thursday</th>
+                                            <th>Friday</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>9:00 - 10:00</td>
+                                            <td>CS101 (A-101)</td>
+                                            <td>CS201 (B-202)</td>
+                                            <td>CS101 (A-101)</td>
+                                            <td>CS201 (B-202)</td>
+                                            <td>IT101 (C-303)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>10:00 - 11:00</td>
+                                            <td>CS201 (B-202)</td>
+                                            <td>CS101 (A-101)</td>
+                                            <td>CS201 (B-202)</td>
+                                            <td>IT101 (C-303)</td>
+                                            <td>CS101 (A-101)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>11:30 - 12:30</td>
+                                            <td>IT101 (C-303)</td>
+                                            <td>IT101 (C-303)</td>
+                                            <td>CS101 (A-101)</td>
+                                            <td>CS201 (B-202)</td>
+                                            <td>CS201 (B-202)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'attendance':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Attendance</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Take Attendance
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">
+                                    Today's Attendance Summary
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Class</th>
+                                            <th>Total Students</th>
+                                            <th>Present</th>
+                                            <th>Absent</th>
+                                            <th>Percentage</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>CS101 - A</td>
+                                            <td>60</td>
+                                            <td>55</td>
+                                            <td>5</td>
+                                            <td>91.67%</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>CS201 - B</td>
+                                            <td>65</td>
+                                            <td>62</td>
+                                            <td>3</td>
+                                            <td>95.38%</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>IT101 - C</td>
+                                            <td>58</td>
+                                            <td>54</td>
+                                            <td>4</td>
+                                            <td>93.10%</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'exams':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Exams</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Schedule Exam
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">
+                                    Upcoming Exams
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Exam</th>
+                                            <th>Course</th>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Venue</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Mid-Term</td>
+                                            <td>CS101</td>
+                                            <td>25 Sep 2023</td>
+                                            <td>10:00 AM</td>
+                                            <td>Hall A</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mid-Term</td>
+                                            <td>CS201</td>
+                                            <td>26 Sep 2023</td>
+                                            <td>02:00 PM</td>
+                                            <td>Hall B</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Mid-Term</td>
+                                            <td>IT101</td>
+                                            <td>27 Sep 2023</td>
+                                            <td>10:00 AM</td>
+                                            <td>Hall C</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'results':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Results</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Publish Results
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">
+                                    Recent Exam Results
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Exam</th>
+                                            <th>Course</th>
+                                            <th>Highest Score</th>
+                                            <th>Average</th>
+                                            <th>Pass Percentage</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>End-Term</td>
+                                            <td>CS101</td>
+                                            <td>98%</td>
+                                            <td>78%</td>
+                                            <td>92%</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>End-Term</td>
+                                            <td>CS201</td>
+                                            <td>95%</td>
+                                            <td>75%</td>
+                                            <td>89%</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>End-Term</td>
+                                            <td>IT101</td>
+                                            <td>97%</td>
+                                            <td>80%</td>
+                                            <td>94%</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'reports':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Reports</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-download"></i> Generate Report
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">
+                                    Available Reports
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Report Type</th>
+                                            <th>Description</th>
+                                            <th>Last Generated</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Attendance Report</td>
+                                            <td>Monthly attendance summary</td>
+                                            <td>31 Aug 2023</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Generate</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Exam Results</td>
+                                            <td>End-term exam results</td>
+                                            <td>15 Jul 2023</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Generate</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Faculty Performance</td>
+                                            <td>Faculty evaluation report</td>
+                                            <td>30 Jun 2023</td>
+                                            <td>
+                                                <button class="btn btn-primary">View</button>
+                                                <button class="btn btn-success">Generate</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'analytics':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Analytics</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-chart-bar"></i> View Detailed Analytics
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="dashboard-sections">
+                                <div class="section">
+                                    <div class="section-header">
+                                        <h2>Performance Trends</h2>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-item">
+                                            <div class="stat-label">Average Pass Percentage</div>
+                                            <div class="stat-value">87%</div>
+                                            <div class="stat-change positive">+3% from last year</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Student Retention</div>
+                                            <div class="stat-value">94%</div>
+                                            <div class="stat-change positive">+2% from last year</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Research Publications</div>
+                                            <div class="stat-value">42</div>
+                                            <div class="stat-change positive">+15% from last year</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Placement Rate</div>
+                                            <div class="stat-value">82%</div>
+                                            <div class="stat-change positive">+5% from last year</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="section">
+                                    <div class="section-header">
+                                        <h2>Department Comparison</h2>
+                                    </div>
+                                    <div class="stats-grid">
+                                        <div class="stat-item">
+                                            <div class="stat-label">Student Strength</div>
+                                            <div class="stat-value">450</div>
+                                            <div class="stat-change">2nd largest in college</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Faculty Ratio</div>
+                                            <div class="stat-value">1:18</div>
+                                            <div class="stat-change positive">Better than average</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Research Funding</div>
+                                            <div class="stat-value">₹25L</div>
+                                            <div class="stat-change positive">Highest in college</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-label">Industry Collaboration</div>
+                                            <div class="stat-value">12</div>
+                                            <div class="stat-change positive">+3 from last year</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'settings':
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>Settings</h2>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">
+                                    Account Settings
+                                </div>
+                                <form>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                        <div>
+                                            <label for="name" style="display: block; margin-bottom: 5px; font-weight: 500;">Full Name</label>
+                                            <input type="text" id="name" value="${fullName}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        <div>
+                                            <label for="email" style="display: block; margin-bottom: 5px; font-weight: 500;">Email</label>
+                                            <input type="email" id="email" value="${username}@college.edu" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        <div>
+                                            <label for="department" style="display: block; margin-bottom: 5px; font-weight: 500;">Department</label>
+                                            <input type="text" id="department" value="${department}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        <div>
+                                            <label for="phone" style="display: block; margin-bottom: 5px; font-weight: 500;">Phone</label>
+                                            <input type="tel" id="phone" value="+91 9876543210" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">
+                                    Notification Preferences
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <label style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" checked> Email Notifications
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" checked> SMS Notifications
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" checked> Exam Notifications
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 10px;">
+                                        <input type="checkbox" checked> Attendance Alerts
+                                    </label>
+                                </div>
+                                <button type="button" class="btn btn-primary" style="margin-top: 15px;">Save Preferences</button>
+                            </div>
+                        `;
+                        break;
+                        
+                    default:
+                        mainContent.innerHTML = `
+                            <div class="page-header">
+                                <h2>${page.charAt(0).toUpperCase() + page.slice(1).replace(/-/g, ' ')}</h2>
+                                <div class="page-actions">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add New
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="page-loading">
+                                <p>This is where the ${page} content will appear.</p>
+                                <p>In a real application, this would load the appropriate content for the ${page} section.</p>
+                            </div>
+                        `;
+                }
+                
+                // Add event listeners to quick action buttons
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const action = this.getAttribute('data-action');
+                        alert(`Action: ${action.replace('-', ' ')} will be performed`);
+                    });
+                });
+            }
+
+            // Load default page
+            loadPage('dashboard');
+        });
+    </script>
+</body>
+</html>

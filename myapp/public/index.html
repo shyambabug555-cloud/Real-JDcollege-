@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Management System - Login</title>
+  <link rel="stylesheet" href="styles.css">
+ <link rel="icon" type="image/png" href="jd.png" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Example Popup CSS */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .popup-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      width: 300px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+    }
+    .popup-content h3 { margin-bottom: 15px; }
+    .popup-content input {
+      width: 90%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .popup-content button {
+      padding: 8px 16px;
+      background: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .popup-content button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-header" style="text-align:center;">
+        <img src="image/jd.png" alt="JD Logo" style="width:80px; height:auto; margin-bottom:10px;" />
+        <h1>College Management System</h1>
+        <p>Sign in to access your account</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="role"><i class="fas fa-user-tag"></i> Login As</label>
+          <div class="select-wrapper">
+            <select id="role" name="role" required>
+              <option value="">Select Role</option>
+              <option value="hod">HOD</option>
+              <option value="faculty">Faculty</option>
+              <option value="student">Student</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="username"><i class="fas fa-user"></i> Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password"><i class="fas fa-lock"></i> Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" name="remember" id="remember">
+            <span>Remember me</span>
+          </label>
+          <!-- Forgot Password link -->
+          <a href="#" id="forgot-link" class="forgot-password">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="login-button">
+          <span>Sign In</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <div class="login-footer">
+          <p>Don't have an account? 
+            <!-- Contact Admin link -->
+            <a href="mailto:admin@college.com" id="contact-admin">Contact Admin</a>
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <div class="login-illustration">
+      <img src="https://img.freepik.com/free-vector/students-studying-together_74855-5251.jpg" alt="Students studying">
+      <div class="illustration-text">
+        <h2>Welcome Back!</h2>
+        <p>Access your personalized dashboard and manage your academic activities with ease.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Popup -->
+  <div class="popup" id="forgot-popup">
+    <div class="popup-content">
+      <h3>Reset Password</h3>
+      <input type="email" id="reset-email" placeholder="Enter your email">
+      <button onclick="sendReset()">Send Reset Link</button>
+      <br><br>
+      <button onclick="closePopup()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // ========== PASSWORD TOGGLE ==========
+    document.querySelector('.toggle-password').addEventListener('click', function() {
+      const passwordInput = document.getElementById('password');
+      const icon = this.querySelector('i');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.replace('fa-eye','fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.replace('fa-eye-slash','fa-eye');
+      }
+    });
+
+    // ========== LOGIN SYSTEM ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuth();
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+      }
+
+      // Forgot Password Click
+      document.getElementById('forgot-link').addEventListener('click', function(e){
+        e.preventDefault();
+        document.getElementById('forgot-popup').style.display = 'flex';
+      });
+    });
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const role = document.getElementById('role').value;
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const remember = document.getElementById('remember').checked;
+
+      if (!role || !username || !password) {
+        alert("Please fill all fields");
+        return;
+      }
+
+      const validCredentials = {
+        'hod': { username: 'hod', password: 'hod123' },
+        'faculty': { username: 'faculty', password: 'faculty123' },
+        'student': { username: 'student', password: 'student123' }
+      };
+
+      if (validCredentials[role] && username === validCredentials[role].username && password === validCredentials[role].password) {
+        sessionStorage.setItem('userRole', role);
+        if (remember) {
+          localStorage.setItem('rememberedUser', JSON.stringify({ role, username }));
+        } else {
+          localStorage.removeItem('rememberedUser');
+        }
+        if (role === 'student') {
+          window.location.href = "student-dashboard.html";
+        } else if (role === 'faculty') {
+          window.location.href = "faculty-dashboard.html";
+        } else if (role === 'hod') {
+          window.location.href = "hod-dashboard.html";
+        }
+      } else {
+        alert("Invalid credentials!");
+      }
+    }
+
+    function checkAuth() {
+      const rememberedUser = localStorage.getItem('rememberedUser');
+      if (rememberedUser) {
+        const { role, username } = JSON.parse(rememberedUser);
+        document.getElementById('role').value = role;
+        document.getElementById('username').value = username;
+        document.getElementById('remember').checked = true;
+      }
+    }
+
+    // Forgot Password Functions
+    function sendReset() {
+      const email = document.getElementById('reset-email').value.trim();
+      if(email){
+        alert("Reset link sent to " + email);
+        closePopup();
+      } else {
+        alert("Please enter your email");
+      }
+    }
+    function closePopup() {
+      document.getElementById('forgot-popup').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

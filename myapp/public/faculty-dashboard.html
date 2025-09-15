@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faculty Dashboard - College Management System</title>
+   <link rel="icon" type="image/png" href="jd.png" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #4e73df;
+      --secondary: #6f42c1;
+      --success: #1cc88a;
+      --info: #36b9cc;
+      --warning: #f6c23e;
+      --danger: #e74a3b;
+      --light: #f8f9fc;
+      --dark: #5a5c69;
+      --sidebar-width: 250px;
+      --header-height: 70px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+ body {
+  background-color: #f8f9fc;
+  color: #333;
+  overflow-x: hidden;
+  /* overflow-y: hidden; */
+}
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  transition: all 0.3s ease;
+  height: 100vh;          /* full viewport height */
+  overflow-y: auto;       /* enable vertical scrolling on main-content */
+}
+
+
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      position: fixed;
+      height: 100vh;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .sidebar.active {
+      margin-left: calc(var(--sidebar-width) * -1);
+    }
+
+    .logo {
+      padding: 20px 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .logo h2 {
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar nav ul {
+      list-style: none;
+      padding: 10px 0;
+    }
+
+    .sidebar nav ul li {
+      margin: 5px 0;
+    }
+
+    .sidebar nav ul li a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      transition: all 0.3s;
+    }
+
+    .sidebar nav ul li a:hover,
+    .sidebar nav ul li.active a {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 4px solid white;
+    }
+
+    .sidebar nav ul li a i {
+      width: 25px;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      transition: all 0.3s ease;
+    }
+
+    /* Header Styles */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      height: var(--header-height);
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .menu-toggle {
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: var(--dark);
+    }
+
+    .welcome-text {
+      color: var(--dark);
+      font-size: 0.9rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .notification {
+      position: relative;
+      cursor: pointer;
+      color: var(--dark);
+    }
+
+    .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 50px;
+      transition: all 0.3s;
+    }
+
+    .profile:hover {
+      background-color: #f5f5f5;
+    }
+
+    .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .profile-role {
+      font-size: 0.8rem;
+      color: var(--dark);
+    }
+
+    /* Page Content */
+    .page-content {
+      padding: 20px;
+    }
+
+    /* Card Styles */
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border-radius: 8px;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      margin-right: 15px;
+      opacity: 0.9;
+    }
+
+    .stat-card-content {
+      flex: 1;
+    }
+
+    .stat-card-content h3 {
+      font-size: 1.8rem;
+      margin-bottom: 5px;
+    }
+
+    .stat-card-content p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .card-primary {
+      background: linear-gradient(90deg, var(--primary) 0%, #6f8bef 100%);
+    }
+
+    .card-success {
+      background: linear-gradient(90deg, var(--success) 0%, #4eccab 100%);
+    }
+
+    .card-warning {
+      background: linear-gradient(90deg, var(--warning) 0%, #f9d371 100%);
+    }
+
+    .card-danger {
+      background: linear-gradient(90deg, var(--danger) 0%, #ef8172 100%);
+    }
+
+    /* Chart Containers */
+    .chart-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.chart-half {
+  flex: 1;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.chart-half canvas {
+  width: 100% !important;
+  height: 250px !important;  /* यहाँ से fix होगा */
+}
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+
+    table th,
+    table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    table th {
+      background-color: #f8f9fc;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    table tr:hover {
+      background-color: #f8f9fc;
+    }
+
+    /* Button Styles */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #3a5fce;
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #17a673;
+    }
+
+
+    /* Button Base */
+.card .btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+/* View Details - Blue */
+.card .viewDetails {
+  background-color: #007bff;
+}
+
+.card .viewDetails:hover {
+  background-color: #0056b3;
+}
+
+/* Attendance Report - Green */
+.card .attendanceReport {
+  background-color: #28a745;
+}
+
+.card .attendanceReport:hover {
+  background-color: #1e7e34;
+}
+
+/* Edit - Orange */
+.card .editClass {
+  background-color: #fd7e14;
+}
+
+.card .editClass:hover {
+  background-color: #e8590c;
+}
+
+/* Add New Class Button - Purple */
+#addClassBtn {
+  background-color: #6f42c1;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+#addClassBtn:hover {
+  background-color: #5936a2;
+}
+
+
+.hidden-class { display: none; }
+
+a {
+  cursor: pointer;
+  color: #007bff;
+  text-decoration: none;
+  margin-left: 10px;
+}
+a:hover { text-decoration: underline; }
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table thead {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  padding: 5px 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.profile:hover {
+  background-color: #f0f0f0;
+}
+
+.profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.profile.active img {
+  transform: scale(1.1); /* slightly enlarge on active */
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-name {
+  font-weight: bold;
+}
+
+.profile-dropdown {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  border-radius: 6px;
+  width: 150px;
+  z-index: 10;
+  flex-direction: column;
+}
+
+.profile-dropdown a {
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+  display: block;
+}
+
+.profile-dropdown a:hover {
+  background-color: #f0f0f0;
+}
+
+.profile.active .profile-dropdown {
+  display: flex;
+}
+
+.notification {
+  position: relative;
+  cursor: pointer;
+  margin-left: 20px;
+  display: inline-block;
+}
+
+.notification i {
+  font-size: 20px;
+  color: #333;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  padding: 2px 6px;
+  font-size: 12px;
+  border-radius: 50%;
+}
+
+.notification-dropdown {
+  display: none;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  width: 250px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  border-radius: 6px;
+  z-index: 10;
+}
+
+.notification-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-dropdown ul li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-dropdown ul li:hover {
+  background-color: #f0f0f0;
+}
+
+.notification.active .notification-dropdown {
+  display: block;
+}
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        margin-left: calc(var(--sidebar-width) * -1);
+      }
+
+      .sidebar.active {
+        margin-left: 0;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .chart-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-info {
+        display: none;
+      }
+    }
+
+
+    /* Sidebar + Header adjustments for small screens */
+@media (max-width: 992px) {
+  .sidebar {
+    position: fixed;
+    left: -100%;
+    width: var(--sidebar-width);
+    transition: all 0.3s ease;
+    z-index: 999;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  header {
+    padding: 0 10px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .chart-container {
+    flex-direction: column;
+  }
+
+  .chart-half {
+    width: 100%;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  table th, table td {
+    padding: 8px 10px;
+  }
+
+  .card-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .profile-info {
+    display: none;
+  }
+
+  .header-right {
+    gap: 10px;
+  }
+}
+
+/* Extra small screens (mobile) */
+@media (max-width: 576px) {
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .menu-toggle {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .btn, .card .btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .profile {
+    padding: 5px;
+    gap: 5px;
+  }
+
+  .profile img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .notification i {
+    font-size: 18px;
+  }
+}
+
+/* Ensure charts scale on small screens */
+@media (max-width: 768px) {
+  .chart-half canvas {
+    height: 200px !important;
+  }
+}
+
+/* Sidebar toggle button for mobile */
+.menu-toggle {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .menu-toggle {
+    display: block;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <h2><i class="fas fa-chalkboard-teacher"></i> Faculty Portal</h2>
+      </div>
+      <nav>
+        <ul>
+          <li class="active" data-page="dashboard">
+            <a href="#"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+          </li>
+          <li data-page="students">
+            <a href="#"><i class="fas fa-user-graduate"></i> <span>My Students</span></a>
+          </li>
+          <li data-page="timetable">
+            <a href="#"><i class="fas fa-calendar-alt"></i> <span>Time Table</span></a>
+          </li>
+          <li data-page="attendance">
+            <a href="#"><i class="fas fa-user-check"></i> <span>Attendance</span></a>
+          </li>
+          <li data-page="assignments">
+            <a href="#"><i class="fas fa-tasks"></i> <span>Assignments</span></a>
+          </li>
+          <li data-page="grades">
+            <a href="#"><i class="fas fa-chart-line"></i> <span>Grades</span></a>
+          </li>
+          <li data-page="classes">
+            <a href="#"><i class="fas fa-chalkboard"></i> <span>My Classes</span></a>
+          </li>
+          <li data-page="materials">
+            <a href="#"><i class="fas fa-book"></i> <span>Study Materials</span></a>
+          </li>
+          <li data-page="reports">
+            <a href="#"><i class="fas fa-file-alt"></i> <span>Reports</span></a>
+          </li>
+          <li data-page="profile">
+            <a href="#"><i class="fas fa-user"></i> <span>Profile</span></a>
+          </li>
+          <li>
+            <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <div class="header-left">
+          <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+          <div>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p class="welcome-text">Welcome back, <span id="facultyName">Professor</span>!</p>
+          </div>
+        </div>
+        <div class="header-right">
+        <div class="notification" id="notificationBtn">
+  <i class="fas fa-bell"></i>
+  <span class="badge" id="notificationCount">3</span>
+
+  <!-- Dropdown panel -->
+  <div class="notification-dropdown" id="notificationDropdown">
+    <ul>
+      <li>New assignment uploaded</li>
+      <li>Meeting at 2 PM</li>
+      <li>Profile updated successfully</li>
+    </ul>
+  </div>
+</div>
+
+
+   <div class="profile" id="profileMenu">
+  <img
+    src="https://ui-avatars.com/api/?name=Faculty&background=4e73df&color=fff"
+    alt="Profile"
+    id="profilePic"
+  />
+  <div class="profile-info">
+    <span class="profile-name" id="profileName">Faculty Name</span>
+    <span class="profile-role">Professor</span>
+  </div>
+  <i class="fas fa-chevron-down"></i>
+
+  <!-- Dropdown menu -->
+  <div class="profile-dropdown" id="profileDropdown">
+    <a href="#" id="changePhoto">Change Photo</a>
+    <a href="#">Settings</a>
+    <a href="#">Logout</a>
+  </div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="photoInput" accept="image/*" style="display:none" />
+</div>
+
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <div class="page-content" id="mainContent"></div>
+    </div>
+  </div>
+<div id="submissions-list"></div>
+
+<script>
+async function loadSubmissions(role="faculty") {
+  const res = await fetch(`/api/submissions?role=${role}`);
+  const rows = await res.json();
+
+  let html = "<h2>Submissions</h2><table border='1'><tr><th>Student</th><th>Assignment</th><th>File</th><th>Date</th></tr>";
+  rows.forEach(r => {
+    html += `<tr>
+      <td>${r.student_name}</td>
+      <td>${r.assignment_title}</td>
+      <td><a href="${r.file_path}" target="_blank">${r.file_name}</a></td>
+      <td>${r.submitted_at}</td>
+    </tr>`;
+  });
+  html += "</table>";
+
+  document.getElementById("submissions-list").innerHTML = html;
+}
+
+// Faculty view
+loadSubmissions("faculty");
+
+// HOD view (use this instead for HOD dashboard)
+// loadSubmissions("hod");
+</script>
+
+  <script>
+  const profileMenu = document.getElementById("profileMenu");
+const profilePic = document.getElementById("profilePic");
+const changePhotoBtn = document.getElementById("changePhoto");
+const photoInput = document.getElementById("photoInput");
+
+// Toggle active class to show dropdown
+profileMenu.addEventListener("click", function(e) {
+  profileMenu.classList.toggle("active");
+});
+
+// Open file picker when "Change Photo" clicked
+changePhotoBtn.addEventListener("click", function(e) {
+  e.preventDefault();
+  photoInput.click(); // trigger hidden file input
+});
+
+// When file selected, update profile photo
+photoInput.addEventListener("change", function() {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      profilePic.src = e.target.result; // set selected image
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // ✅ Check authentication
+      const userRole = sessionStorage.getItem("userRole");
+      if (!userRole || userRole !== "faculty") {
+        window.location.href = "index.html";
+        return;
+      }
+
+      // ✅ Update profile name
+      const fullName = sessionStorage.getItem("fullName") || "Faculty";
+      document.getElementById("facultyName").textContent = fullName;
+      document.getElementById("profileName").textContent = fullName;
+
+      // ✅ Sidebar toggle
+      document.querySelector(".menu-toggle").addEventListener("click", function () {
+        document.querySelector(".sidebar").classList.toggle("active");
+      });
+
+      // ✅ Navigation
+      document.querySelectorAll(".sidebar li[data-page]").forEach((item) => {
+        item.addEventListener("click", function (e) {
+          e.preventDefault();
+          const page = this.getAttribute("data-page");
+          loadPage(page);
+        });
+      });
+
+      // ✅ Logout
+      document.getElementById("logout").addEventListener("click", function (e) {
+        e.preventDefault();
+        sessionStorage.clear();
+        localStorage.removeItem("rememberedUser");
+        window.location.href = "index.html";
+      });
+
+      // ✅ Page loader function
+      function loadPage(page) {
+        const mainContent = document.getElementById("mainContent");
+
+        // highlight active menu
+        document.querySelectorAll(".sidebar li").forEach((li) => li.classList.remove("active"));
+        document.querySelector(`.sidebar li[data-page="${page}"]`)?.classList.add("active");
+
+        // update page title
+        document.getElementById("pageTitle").textContent = page.charAt(0).toUpperCase() + page.slice(1);
+
+        switch (page) {
+          case "dashboard":
+// Inject the dashboard HTML
+mainContent.innerHTML = `
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;">
+    <div class="stat-card card-primary" style="cursor:pointer;" id="statClasses">
+      <i class="fas fa-chalkboard"></i>
+      <div class="stat-card-content">
+        <h3>5</h3>
+        <p>Classes</p>
+      </div>
+    </div>
+    <div class="stat-card card-success" style="cursor:pointer;" id="statStudents">
+      <i class="fas fa-user-graduate"></i>
+      <div class="stat-card-content">
+        <h3>120</h3>
+        <p>Students</p>
+      </div>
+    </div>
+    <div class="stat-card card-warning" style="cursor:pointer;" id="statAssignments">
+      <i class="fas fa-tasks"></i>
+      <div class="stat-card-content">
+        <h3>3</h3>
+        <p>Pending Assignments</p>
+      </div>
+    </div>
+    <div class="stat-card card-danger" style="cursor:pointer;" id="statAttendance">
+      <i class="fas fa-user-check"></i>
+      <div class="stat-card-content">
+        <h3>92%</h3>
+        <p>Average Attendance</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <div class="chart-half">
+      <div class="card-title">Attendance Overview</div>
+      <canvas id="attendanceChart"></canvas>
+    </div>
+    <div class="chart-half">
+      <div class="card-title">Grade Distribution</div>
+      <canvas id="gradeChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+  <div class="card-title">
+    Upcoming Classes
+    <span><a href="#" id="viewAllClasses">View All</a></span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Class</th>
+        <th>Subject</th>
+        <th>Room</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Always visible rows -->
+      <tr>
+        <td>10:00 - 11:00</td>
+        <td>B.Tech CSE 3rd Year</td>
+        <td>Database Management</td>
+        <td>R-402</td>
+      </tr>
+      <tr>
+        <td>11:30 - 12:30</td>
+        <td>B.Tech IT 2nd Year</td>
+        <td>Operating Systems</td>
+        <td>R-305</td>
+      </tr>
+      <tr>
+        <td>2:00 - 3:00</td>
+        <td>MCA 1st Year</td>
+        <td>Artificial Intelligence</td>
+        <td>R-201</td>
+      </tr>
+
+      <!-- Hidden rows initially -->
+      <tr class="hidden-class">
+        <td>3:30 - 4:30</td>
+        <td>B.Tech ECE 2nd Year</td>
+        <td>Electronics Lab</td>
+        <td>R-101</td>
+      </tr>
+      <tr class="hidden-class">
+        <td>4:45 - 5:45</td>
+        <td>MCA 2nd Year</td>
+        <td>Machine Learning</td>
+        <td>R-202</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+  <div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:20px; border-radius:8px; max-width:600px; width:90%;">
+      <span id="modalClose" style="cursor:pointer; float:right; font-weight:bold;">&times;</span>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+`;
+const notificationBtn = document.getElementById("notificationBtn");
+
+// Toggle dropdown on click
+notificationBtn.addEventListener("click", function(e) {
+  notificationBtn.classList.toggle("active");
+});
+
+const viewAllBtn = document.getElementById("viewAllClasses");
+let isExpanded = false;
+
+viewAllBtn.addEventListener("click", function(e) {
+  e.preventDefault();
+
+  const hiddenRows = document.querySelectorAll(".hidden-class");
+
+  if (!isExpanded) {
+    hiddenRows.forEach(row => row.style.display = "table-row");
+    viewAllBtn.textContent = "Show Less";
+    isExpanded = true;
+  } else {
+    hiddenRows.forEach(row => row.style.display = "none");
+    viewAllBtn.textContent = "View All";
+    isExpanded = false;
+  }
+});
+// Modal helpers
+const modal = document.getElementById("modal");
+const modalContent = document.getElementById("modalContent");
+document.getElementById("modalClose").addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+// CLASSES CLICK
+document.getElementById("statClasses").addEventListener("click", () => {
+  modalContent.innerHTML = `
+    <h2>Classes List</h2>
+    <ul>
+      <li>B.Tech CSE 3rd Year - DBMS</li>
+      <li>B.Tech IT 2nd Year - OS</li>
+      <li>MCA 1st Year - AI</li>
+      <li>BBA 1st Year - Marketing</li>
+      <li>B.Tech CSE 2nd Year - OS</li>
+    </ul>
+  `;
+  modal.style.display = "flex";
+});
+
+// STUDENTS CLICK
+document.getElementById("statStudents").addEventListener("click", () => {
+  modalContent.innerHTML = `
+    <h2>Students List</h2>
+    <ul>
+      <li>Rahul Sharma</li>
+      <li>Priya Verma</li>
+      <li>Aman Gupta</li>
+      <li>Neha Singh</li>
+      <li>Other 115 students...</li>
+    </ul>
+  `;
+  modal.style.display = "flex";
+});
+
+// PENDING ASSIGNMENTS CLICK
+document.getElementById("statAssignments").addEventListener("click", () => {
+  modalContent.innerHTML = `
+    <h2>Pending Assignments</h2>
+    <ul>
+      <li>DBMS Project - Due 2023-11-15</li>
+      <li>OS Assignment 2 - Due 2023-11-10</li>
+      <li>AI Research Paper - Due 2023-10-25</li>
+    </ul>
+  `;
+  modal.style.display = "flex";
+});
+
+// AVERAGE ATTENDANCE CLICK
+document.getElementById("statAttendance").addEventListener("click", () => {
+  modalContent.innerHTML = `
+    <h2>Attendance Overview</h2>
+    <ul>
+      <li>Rahul Sharma: 94%</li>
+      <li>Priya Verma: 88%</li>
+      <li>Aman Gupta: 91%</li>
+      <li>Neha Singh: 96%</li>
+      <li>Others: ...</li>
+    </ul>
+  `;
+  modal.style.display = "flex";
+});
+
+            // Initialize charts after content is loaded and DOM paint complete
+            requestAnimationFrame(() => {
+              initCharts();
+            });
+            break;
+
+       case "students":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        My Students
+        <button id="exportBtn" class="btn btn-primary">Export List</button>
+      </div>
+      <table id="studentsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Program</th>
+            <th>Year</th>
+            <th>Attendance</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>S001</td>
+            <td>Rahul Sharma</td>
+            <td>B.Tech CSE</td>
+            <td>3rd Year</td>
+            <td>94%</td>
+            <td><button class="btn btn-primary view-btn">View</button></td>
+          </tr>
+          <tr>
+            <td>S002</td>
+            <td>Priya Verma</td>
+            <td>B.Tech IT</td>
+            <td>2nd Year</td>
+            <td>88%</td>
+            <td><button class="btn btn-primary view-btn">View</button></td>
+          </tr>
+          <tr>
+            <td>S003</td>
+            <td>Aman Gupta</td>
+            <td>BBA</td>
+            <td>1st Year</td>
+            <td>91%</td>
+            <td><button class="btn btn-primary view-btn">View</button></td>
+          </tr>
+          <tr>
+            <td>S004</td>
+            <td>Neha Singh</td>
+            <td>MCA</td>
+            <td>1st Year</td>
+            <td>96%</td>
+            <td><button class="btn btn-primary view-btn">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // VIEW button functionality
+  document.querySelectorAll(".view-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const row = e.target.closest("tr");
+      const studentInfo = {
+        ID: row.cells[0].innerText,
+        Name: row.cells[1].innerText,
+        Program: row.cells[2].innerText,
+        Year: row.cells[3].innerText,
+        Attendance: row.cells[4].innerText,
+      };
+      // You can replace alert with a modal if you want
+      alert(`Student Info:\n
+ID: ${studentInfo.ID}
+Name: ${studentInfo.Name}
+Program: ${studentInfo.Program}
+Year: ${studentInfo.Year}
+Attendance: ${studentInfo.Attendance}`);
+    });
+  });
+
+  // EXPORT button functionality (CSV)
+  document.getElementById("exportBtn").addEventListener("click", () => {
+    const table = document.getElementById("studentsTable");
+    let csv = [];
+    for (let row of table.rows) {
+      const cols = Array.from(row.cells).map((cell) => cell.innerText);
+      csv.push(cols.join(","));
+    }
+    const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", "students_list.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+break;
+
+
+        case "timetable":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        Weekly Timetable
+        <button id="downloadTimetable" class="btn btn-primary">Download</button>
+      </div>
+      <table id="timetableTable" border="1">
+        <thead>
+          <tr>
+            <th>Time/Day</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>9:00 - 10:00</td>
+            <td>-</td>
+            <td>OS (IT-2)</td>
+            <td>-</td>
+            <td>DBMS (CSE-3)</td>
+            <td>AI (MCA-1)</td>
+          </tr>
+          <tr>
+            <td>10:00 - 11:00</td>
+            <td>DBMS (CSE-3)</td>
+            <td>-</td>
+            <td>OS (IT-2)</td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>11:30 - 12:30</td>
+            <td>OS (IT-2)</td>
+            <td>AI (MCA-1)</td>
+            <td>DBMS (CSE-3)</td>
+            <td>-</td>
+            <td>DBMS (CSE-3)</td>
+          </tr>
+          <tr>
+            <td>12:30 - 1:30</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>OS (IT-2)</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>2:00 - 3:00</td>
+            <td>AI (MCA-1)</td>
+            <td>-</td>
+            <td>AI (MCA-1)</td>
+            <td>-</td>
+            <td>OS (IT-2)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  // Make table editable on click
+  const cells = document.querySelectorAll("#timetableTable td");
+  cells.forEach((cell) => {
+    cell.addEventListener("click", () => {
+      const current = cell.innerText;
+      const input = document.createElement("input");
+      input.value = current;
+      input.style.width = "100%";
+      cell.innerText = "";
+      cell.appendChild(input);
+      input.focus();
+
+      input.addEventListener("blur", () => {
+        cell.innerText = input.value || "-"; // default "-"
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") input.blur();
+      });
+    });
+  });
+
+  // Download button functionality (CSV)
+  document.getElementById("downloadTimetable").addEventListener("click", () => {
+    const table = document.getElementById("timetableTable");
+    let csv = [];
+    for (let row of table.rows) {
+      const cols = Array.from(row.cells).map((cell) => cell.innerText);
+      csv.push(cols.join(","));
+    }
+    const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", "weekly_timetable.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+break;
+
+// # attendance
+        case "attendance":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        Mark Attendance
+        <div style="margin-top: 10px;">
+          <select id="attendanceClass">
+            <option>Select Class</option>
+            <option>B.Tech CSE 3rd Year - DBMS</option>
+            <option>B.Tech IT 2nd Year - OS</option>
+            <option>MCA 1st Year - AI</option>
+          </select>
+          <input type="date" id="attendanceDate" />
+          <button id="loadStudents" class="btn btn-primary">Load Students</button>
+          <button id="addStudent" class="btn btn-success">Add Student</button>
+        </div>
+      </div>
+      <table id="attendanceTable" border="1">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div style="margin-top: 20px; text-align: center;">
+        <button id="submitAttendance" class="btn btn-success">Submit Attendance</button>
+      </div>
+      <div id="attendanceSummary" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+    </div>
+  `;
+
+// Sample data for classes
+const classesData = {
+  "B.Tech CSE 3rd Year - DBMS": [
+    { id: "S001", name: "Rahul Sharma" },
+    { id: "S002", name: "Priya Verma" }
+  ],
+  "B.Tech IT 2nd Year - OS": [
+    { id: "S003", name: "Aman Gupta" }
+  ],
+  "MCA 1st Year - AI": [
+    { id: "S004", name: "Neha Singh" }
+  ]
+};
+
+// Function to render students
+function renderStudents(students) {
+  const tbody = document.querySelector("#attendanceTable tbody");
+  tbody.innerHTML = "";
+  students.forEach((s) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="editable">${s.id}</td>
+      <td class="editable">${s.name}</td>
+      <td>
+        <select class="status-select">
+          <option value="present">Present</option>
+          <option value="absent">Absent</option>
+          <option value="late">Late</option>
+        </select>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Make ID and Name editable
+  tbody.querySelectorAll(".editable").forEach((cell) => {
+    cell.addEventListener("click", () => {
+      const current = cell.innerText;
+      const input = document.createElement("input");
+      input.value = current;
+      input.style.width = "100%";
+      cell.innerText = "";
+      cell.appendChild(input);
+      input.focus();
+      input.addEventListener("blur", () => { cell.innerText = input.value || current; updateAttendance(); });
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+    });
+  });
+
+  // Status change events
+  tbody.querySelectorAll(".status-select").forEach((select) => {
+    select.addEventListener("change", updateAttendance);
+  });
+
+  updateAttendance();
+}
+
+// Update attendance colors and percentage
+function updateAttendance() {
+  const rows = document.querySelectorAll("#attendanceTable tbody tr");
+  let presentCount = 0;
+  let total = rows.length;
+  rows.forEach((row) => {
+    const status = row.querySelector(".status-select").value;
+    if (status === "present") {
+      row.cells[2].style.backgroundColor = "#c8e6c9"; // green
+      presentCount++;
+    } else if (status === "absent") {
+      row.cells[2].style.backgroundColor = "#ffcdd2"; // red
+    } else {
+      row.cells[2].style.backgroundColor = "#fff3e0"; // orange for late
+    }
+  });
+  const percent = total ? ((presentCount / total) * 100).toFixed(1) : 0;
+  document.getElementById("attendanceSummary").innerText = `Attendance: ${percent}% Present`;
+}
+
+// Load students button
+document.getElementById("loadStudents").addEventListener("click", () => {
+  const cls = document.getElementById("attendanceClass").value;
+  if (cls && classesData[cls]) renderStudents(classesData[cls]);
+  else alert("Please select a valid class");
+});
+
+// Add new student
+document.getElementById("addStudent").addEventListener("click", () => {
+  const tbody = document.querySelector("#attendanceTable tbody");
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td class="editable">NewID</td>
+    <td class="editable">New Name</td>
+    <td>
+      <select class="status-select">
+        <option value="present">Present</option>
+        <option value="absent">Absent</option>
+        <option value="late">Late</option>
+      </select>
+    </td>
+  `;
+  tbody.appendChild(row);
+
+  // Make editable and attach events
+  row.querySelectorAll(".editable").forEach((cell) => {
+    cell.addEventListener("click", () => {
+      const current = cell.innerText;
+      const input = document.createElement("input");
+      input.value = current;
+      input.style.width = "100%";
+      cell.innerText = "";
+      cell.appendChild(input);
+      input.focus();
+      input.addEventListener("blur", () => { cell.innerText = input.value || current; updateAttendance(); });
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+    });
+  });
+  row.querySelector(".status-select").addEventListener("change", updateAttendance);
+  updateAttendance();
+});
+
+// Submit attendance
+document.getElementById("submitAttendance").addEventListener("click", () => {
+  updateAttendance();
+  alert("Attendance submitted!");
+});
+break;
+
+ // assignment function
+       case "assignments":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        Assignments
+        <button id="createAssignment" class="btn btn-primary">Create New</button>
+      </div>
+      <table id="assignmentsTable" border="1">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Class</th>
+            <th>Due Date</th>
+            <th>Submissions</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="editable">DBMS Project</td>
+            <td class="editable">B.Tech CSE 3rd Year</td>
+            <td class="editable">2023-11-15</td>
+            <td>32/40</td>
+            <td><span class="status" style="color: green">Active</span></td>
+            <td>
+              <button class="btn view-btn">View</button>
+              <button class="btn grade-btn">Grade</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="editable">OS Assignment 2</td>
+            <td class="editable">B.Tech IT 2nd Year</td>
+            <td class="editable">2023-11-10</td>
+            <td>28/35</td>
+            <td><span class="status" style="color: green">Active</span></td>
+            <td>
+              <button class="btn view-btn">View</button>
+              <button class="btn grade-btn">Grade</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="editable">AI Research Paper</td>
+            <td class="editable">MCA 1st Year</td>
+            <td class="editable">2023-10-25</td>
+            <td>20/25</td>
+            <td><span class="status" style="color: red">Closed</span></td>
+            <td>
+              <button class="btn view-btn">View</button>
+              <button class="btn grade-btn">Grade</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+// Make cells editable
+function makeEditable() {
+  document.querySelectorAll("#assignmentsTable td.editable").forEach((cell) => {
+    cell.addEventListener("click", () => {
+      const current = cell.innerText;
+      const input = document.createElement("input");
+      input.value = current;
+      input.style.width = "100%";
+      cell.innerText = "";
+      cell.appendChild(input);
+      input.focus();
+
+      input.addEventListener("blur", () => { cell.innerText = input.value || current; });
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") input.blur(); });
+    });
+  });
+}
+
+// VIEW button
+function viewAssignment() {
+  document.querySelectorAll(".view-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const row = e.target.closest("tr");
+      const info = `
+        Title: ${row.cells[0].innerText}
+        Class: ${row.cells[1].innerText}
+        Due Date: ${row.cells[2].innerText}
+        Submissions: ${row.cells[3].innerText}
+        Status: ${row.cells[4].innerText}
+      `;
+      alert(info);
+    });
+  });
+}
+
+// GRADE button
+function gradeAssignment() {
+  document.querySelectorAll(".grade-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const row = e.target.closest("tr");
+      const currentGrade = row.cells[3].innerText;
+      const newGrade = prompt("Enter new submissions/grade:", currentGrade);
+      if (newGrade) row.cells[3].innerText = newGrade;
+    });
+  });
+}
+
+// Create New Assignment
+document.getElementById("createAssignment").addEventListener("click", () => {
+  const tbody = document.querySelector("#assignmentsTable tbody");
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td class="editable">New Title</td>
+    <td class="editable">New Class</td>
+    <td class="editable">${new Date().toISOString().split('T')[0]}</td>
+    <td>0/0</td>
+    <td><span class="status" style="color: green">Active</span></td>
+    <td>
+      <button class="btn view-btn">View</button>
+      <button class="btn grade-btn">Grade</button>
+    </td>
+  `;
+  tbody.appendChild(row);
+  makeEditable();
+  viewAssignment();
+  gradeAssignment();
+});
+
+// Initialize
+makeEditable();
+viewAssignment();
+gradeAssignment();
+break;
+
+
+// #grade ........ function for grade button
+    case "grades":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        Grade Management
+        <div style="margin-top:10px;">
+          <select id="gradeClass">
+            <option>Select Class</option>
+            <option>B.Tech CSE 3rd Year - DBMS</option>
+            <option>B.Tech IT 2nd Year - OS</option>
+            <option>MCA 1st Year - AI</option>
+          </select>
+          <select id="gradeAssignment">
+            <option>Select Assignment</option>
+          </select>
+          <button id="loadGrades" class="btn btn-primary">Load Students</button>
+        </div>
+      </div>
+      <table id="gradesTable" border="1">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th>Submission Date</th>
+            <th>Grade</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div style="margin-top: 20px; text-align: center;">
+        <button id="saveGrades" class="btn btn-success">Save Grades</button>
+      </div>
+    </div>
+  `;
+
+// Sample data
+const assignmentsData = {
+  "B.Tech CSE 3rd Year - DBMS": ["DBMS Project", "DBMS Assignment 2"],
+  "B.Tech IT 2nd Year - OS": ["OS Assignment 1", "OS Assignment 2"],
+  "MCA 1st Year - AI": ["AI Research Paper"]
+};
+
+const studentsData = {
+  "DBMS Project": [
+    { id: "S001", name: "Rahul Sharma", date: "2023-11-12", grade: "A+" },
+    { id: "S002", name: "Priya Verma", date: "2023-11-11", grade: "A" }
+  ],
+  "OS Assignment 2": [
+    { id: "S003", name: "Aman Gupta", date: "2023-11-10", grade: "B+" }
+  ],
+  "AI Research Paper": [
+    { id: "S004", name: "Neha Singh", date: "2023-10-25", grade: "B" }
+  ]
+};
+
+// Populate assignments based on class
+document.getElementById("gradeClass").addEventListener("change", (e) => {
+  const assignmentSelect = document.getElementById("gradeAssignment");
+  assignmentSelect.innerHTML = "<option>Select Assignment</option>";
+  const cls = e.target.value;
+  if (assignmentsData[cls]) {
+    assignmentsData[cls].forEach(a => {
+      const opt = document.createElement("option");
+      opt.text = a;
+      assignmentSelect.add(opt);
+    });
+  }
+});
+
+// Load students
+document.getElementById("loadGrades").addEventListener("click", () => {
+  const assignment = document.getElementById("gradeAssignment").value;
+  const tbody = document.querySelector("#gradesTable tbody");
+  tbody.innerHTML = "";
+  if (!studentsData[assignment]) return alert("No students for this assignment!");
+  
+  studentsData[assignment].forEach(s => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${s.id}</td>
+      <td>${s.name}</td>
+      <td>${s.date}</td>
+      <td>
+        <select class="grade-select">
+          <option${s.grade==="A+"?" selected":""}>A+</option>
+          <option${s.grade==="A"?" selected":""}>A</option>
+          <option${s.grade==="B+"?" selected":""}>B+</option>
+          <option${s.grade==="B"?" selected":""}>B</option>
+          <option${s.grade==="C"?" selected":""}>C</option>
+          <option${s.grade==="F"?" selected":""}>F</option>
+        </select>
+      </td>
+      <td>
+        <button class="btn download-btn">Download</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  // Attach download events
+  document.querySelectorAll(".download-btn").forEach((btn, index) => {
+    btn.addEventListener("click", () => {
+      const student = studentsData[assignment][index];
+      const csv = `ID,Name,Submission Date,Grade\n${student.id},${student.name},${student.date},${student.grade}`;
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${student.name}_grade.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  });
+
+  // Update grades on change
+  document.querySelectorAll(".grade-select").forEach((select, index) => {
+    select.addEventListener("change", (e) => {
+      studentsData[assignment][index].grade = e.target.value;
+    });
+  });
+});
+
+// Save all grades
+document.getElementById("saveGrades").addEventListener("click", () => {
+  alert("All grades saved successfully!");
+});
+function makeEditableGradeTable() {
+  document.querySelectorAll("#gradesTable td").forEach((cell, index) => {
+    // Only ID, Name, Submission Date editable if needed
+    if(index <= 2){ 
+      cell.addEventListener("click", () => {
+        const current = cell.innerText;
+        const input = document.createElement("input");
+        input.value = current;
+        input.style.width = "100%";
+        cell.innerText = "";
+        cell.appendChild(input);
+        input.focus();
+        input.addEventListener("blur", () => { cell.innerText = input.value || current; });
+        input.addEventListener("keydown", (e) => { if(e.key === "Enter") input.blur(); });
+      });
+    }
+  });
+}
+
+break;
+
+// ..................////............class
+
+       case "classes":
+  mainContent.innerHTML = `
+    <div style="margin-bottom: 15px;">
+      <button id="addClassBtn" class="btn btn-primary">Add New Class</button>
+    </div>
+    <div class="dashboard-grid" id="classesGrid">
+      <div class="card">
+        <div class="card-title">B.Tech CSE 3rd Year - DBMS</div>
+        <p><strong>Schedule:</strong> Mon, Wed, Fri (10:00 - 11:00)</p>
+        <p><strong>Room:</strong> R-402</p>
+        <p><strong>Students:</strong> 40</p>
+        <div style="margin-top: 15px;">
+          <button class="btn viewDetails">View Details</button>
+          <button class="btn attendanceReport">Attendance Report</button>
+          <button class="btn editClass">Edit</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">B.Tech IT 2nd Year - OS</div>
+        <p><strong>Schedule:</strong> Tue, Thu (11:30 - 12:30)</p>
+        <p><strong>Room:</strong> R-305</p>
+        <p><strong>Students:</strong> 35</p>
+        <div style="margin-top: 15px;">
+          <button class="btn viewDetails">View Details</button>
+          <button class="btn attendanceReport">Attendance Report</button>
+          <button class="btn editClass">Edit</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">MCA 1st Year - AI</div>
+        <p><strong>Schedule:</strong> Mon, Wed (2:00 - 3:00)</p>
+        <p><strong>Room:</strong> R-201</p>
+        <p><strong>Students:</strong> 25</p>
+        <div style="margin-top: 15px;">
+          <button class="btn viewDetails">View Details</button>
+          <button class="btn attendanceReport">Attendance Report</button>
+          <button class="btn editClass">Edit</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+// FUNCTION: View Details
+document.querySelectorAll(".viewDetails").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    alert(`
+      Class: ${card.querySelector(".card-title").innerText}
+      Schedule: ${card.querySelector("p:nth-of-type(1)").innerText.split(":")[1].trim()}
+      Room: ${card.querySelector("p:nth-of-type(2)").innerText.split(":")[1].trim()}
+      Students: ${card.querySelector("p:nth-of-type(3)").innerText.split(":")[1].trim()}
+    `);
+  });
+});
+
+// FUNCTION: Attendance Report
+document.querySelectorAll(".attendanceReport").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    const className = card.querySelector(".card-title").innerText;
+    alert(`Showing attendance report for ${className} (You can replace this with a table).`);
+  });
+});
+
+// FUNCTION: Edit Class
+document.querySelectorAll(".editClass").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    const schedule = prompt("Edit Schedule:", card.querySelector("p:nth-of-type(1)").innerText.split(":")[1].trim());
+    const room = prompt("Edit Room:", card.querySelector("p:nth-of-type(2)").innerText.split(":")[1].trim());
+    const students = prompt("Edit Student Count:", card.querySelector("p:nth-of-type(3)").innerText.split(":")[1].trim());
+    if(schedule) card.querySelector("p:nth-of-type(1)").innerHTML = `<strong>Schedule:</strong> ${schedule}`;
+    if(room) card.querySelector("p:nth-of-type(2)").innerHTML = `<strong>Room:</strong> ${room}`;
+    if(students) card.querySelector("p:nth-of-type(3)").innerHTML = `<strong>Students:</strong> ${students}`;
+  });
+});
+
+// FUNCTION: Add New Class
+document.getElementById("addClassBtn").addEventListener("click", () => {
+  const grid = document.getElementById("classesGrid");
+  const newCard = document.createElement("div");
+  newCard.classList.add("card");
+  newCard.innerHTML = `
+    <div class="card-title">New Class</div>
+    <p><strong>Schedule:</strong> TBD</p>
+    <p><strong>Room:</strong> TBD</p>
+    <p><strong>Students:</strong> 0</p>
+    <div style="margin-top: 15px;">
+      <button class="btn viewDetails">View Details</button>
+      <button class="btn attendanceReport">Attendance Report</button>
+      <button class="btn editClass">Edit</button>
+    </div>
+  `;
+  grid.appendChild(newCard);
+
+  // Reattach events for the new card
+  newCard.querySelector(".viewDetails").addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    alert(`
+      Class: ${card.querySelector(".card-title").innerText}
+      Schedule: ${card.querySelector("p:nth-of-type(1)").innerText.split(":")[1].trim()}
+      Room: ${card.querySelector("p:nth-of-type(2)").innerText.split(":")[1].trim()}
+      Students: ${card.querySelector("p:nth-of-type(3)").innerText.split(":")[1].trim()}
+    `);
+  });
+  newCard.querySelector(".attendanceReport").addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    const className = card.querySelector(".card-title").innerText;
+    alert(`Showing attendance report for ${className} (replace this with table).`);
+  });
+  newCard.querySelector(".editClass").addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    const schedule = prompt("Edit Schedule:", card.querySelector("p:nth-of-type(1)").innerText.split(":")[1].trim());
+    const room = prompt("Edit Room:", card.querySelector("p:nth-of-type(2)").innerText.split(":")[1].trim());
+    const students = prompt("Edit Student Count:", card.querySelector("p:nth-of-type(3)").innerText.split(":")[1].trim());
+    if(schedule) card.querySelector("p:nth-of-type(1)").innerHTML = `<strong>Schedule:</strong> ${schedule}`;
+    if(room) card.querySelector("p:nth-of-type(2)").innerHTML = `<strong>Room:</strong> ${room}`;
+    if(students) card.querySelector("p:nth-of-type(3)").innerHTML = `<strong>Students:</strong> ${students}`;
+  });
+});
+break;
+
+/// materials page///// 
+   case "materials":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        Study Materials
+        <button class="btn uploadNew" style="background-color: #6f42c1; color: #fff; border-radius: 5px; padding: 8px 14px; margin-left: 10px;">Upload New</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Class</th>
+            <th>Type</th>
+            <th>Upload Date</th>
+            <th>Downloads</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DBMS Lecture Notes - Chapter 1</td>
+            <td>B.Tech CSE 3rd Year</td>
+            <td>PDF</td>
+            <td>2023-09-10</td>
+            <td>38</td>
+            <td>
+              <button class="btn download" style="background-color: #007bff; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Download</button>
+              <button class="btn share" style="background-color: #28a745; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Share</button>
+              <button class="btn editMaterial" style="background-color: #fd7e14; color: #fff; border-radius: 5px; padding: 5px 10px;">Edit</button>
+            </td>
+          </tr>
+          <tr>
+            <td>OS Assignment Guidelines</td>
+            <td>B.Tech IT 2nd Year</td>
+            <td>DOCX</td>
+            <td>2023-10-05</td>
+            <td>32</td>
+            <td>
+              <button class="btn download" style="background-color: #007bff; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Download</button>
+              <button class="btn share" style="background-color: #28a745; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Share</button>
+              <button class="btn editMaterial" style="background-color: #fd7e14; color: #fff; border-radius: 5px; padding: 5px 10px;">Edit</button>
+            </td>
+          </tr>
+          <tr>
+            <td>AI Reference Materials</td>
+            <td>MCA 1st Year</td>
+            <td>ZIP</td>
+            <td>2023-10-15</td>
+            <td>24</td>
+            <td>
+              <button class="btn download" style="background-color: #007bff; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Download</button>
+              <button class="btn share" style="background-color: #28a745; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Share</button>
+              <button class="btn editMaterial" style="background-color: #fd7e14; color: #fff; border-radius: 5px; padding: 5px 10px;">Edit</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+// FUNCTION: Upload New Material
+document.querySelector(".uploadNew").addEventListener("click", () => {
+  const title = prompt("Enter Material Title:");
+  const cls = prompt("Enter Class:");
+  const type = prompt("Enter File Type (PDF, DOCX, ZIP):");
+  const date = new Date().toISOString().split("T")[0];
+  const downloads = 0;
+
+  if(title && cls && type){
+    const tbody = document.querySelector("tbody");
+    const newRow = document.createElement("tr");
+    newRow.innerHTML = `
+      <td>${title}</td>
+      <td>${cls}</td>
+      <td>${type}</td>
+      <td>${date}</td>
+      <td>${downloads}</td>
+      <td>
+        <button class="btn download" style="background-color: #007bff; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Download</button>
+        <button class="btn share" style="background-color: #28a745; color: #fff; border-radius: 5px; padding: 5px 10px; margin-right: 5px;">Share</button>
+        <button class="btn editMaterial" style="background-color: #fd7e14; color: #fff; border-radius: 5px; padding: 5px 10px;">Edit</button>
+      </td>
+    `;
+    tbody.appendChild(newRow);
+
+    // Attach actions for new row
+    attachMaterialActions(newRow);
+  }
+});
+
+// Attach actions for all rows
+function attachMaterialActions(row){
+  row.querySelector(".download").addEventListener("click", () => {
+    alert(`Downloading ${row.children[0].innerText}...`);
+  });
+  row.querySelector(".share").addEventListener("click", () => {
+    alert(`Sharing ${row.children[0].innerText}...`);
+  });
+  row.querySelector(".editMaterial").addEventListener("click", () => {
+    const newTitle = prompt("Edit Title:", row.children[0].innerText);
+    const newClass = prompt("Edit Class:", row.children[1].innerText);
+    const newType = prompt("Edit Type:", row.children[2].innerText);
+    if(newTitle) row.children[0].innerText = newTitle;
+    if(newClass) row.children[1].innerText = newClass;
+    if(newType) row.children[2].innerText = newType;
+  });
+}
+
+// Initial attachment for existing rows
+document.querySelectorAll("tbody tr").forEach(tr => attachMaterialActions(tr));
+break;
+
+////////////////////////////////// reports///////////
+ case "reports":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        Generate Reports
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+        <div class="card">
+          <h3>Attendance Report</h3>
+          <p>Generate attendance reports for classes</p>
+          <button class="btn generateAttendance" style="background-color: #007bff; color: #fff; border-radius: 5px; padding: 8px 14px;">Generate</button>
+        </div>
+
+        <div class="card">
+          <h3>Grade Report</h3>
+          <p>Generate grade reports for assignments</p>
+          <button class="btn generateGrades" style="background-color: #28a745; color: #fff; border-radius: 5px; padding: 8px 14px;">Generate</button>
+        </div>
+
+        <div class="card">
+          <h3>Student Performance</h3>
+          <p>View student performance analytics</p>
+          <button class="btn generatePerformance" style="background-color: #fd7e14; color: #fff; border-radius: 5px; padding: 8px 14px;">Generate</button>
+        </div>
+
+        <div class="card">
+          <h3>Class Statistics</h3>
+          <p>View class-wise statistics</p>
+          <button class="btn generateStats" style="background-color: #6f42c1; color: #fff; border-radius: 5px; padding: 8px 14px;">Generate</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+// ATTACH BUTTON ACTIONS
+document.querySelector(".generateAttendance").addEventListener("click", () => {
+  alert("Generating Attendance Report...");
+  // You can add actual CSV/Excel download logic here
+});
+
+document.querySelector(".generateGrades").addEventListener("click", () => {
+  alert("Generating Grade Report...");
+});
+
+document.querySelector(".generatePerformance").addEventListener("click", () => {
+  alert("Generating Student Performance Analytics...");
+});
+
+document.querySelector(".generateStats").addEventListener("click", () => {
+  alert("Generating Class Statistics...");
+});
+break;
+
+
+/////////profile////////////////////////
+         case "profile":
+  mainContent.innerHTML = `
+    <div class="card">
+      <div class="card-title">Profile Information</div>
+      <div style="display: flex; gap: 30px; align-items: flex-start;">
+        <div>
+          <img
+            id="profileImage"
+            src="https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=4e73df&color=fff&size=150"
+            alt="Profile"
+            style="border-radius: 8px; width:150px; height:150px; object-fit: cover;"
+          />
+          <div style="margin-top:10px;">
+            <button class="btn changePic" style="background-color:#6f42c1;color:#fff;padding:5px 10px;border-radius:5px;">Change Picture</button>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <table id="profileTable">
+            <tr>
+              <td><strong>Name:</strong></td>
+              <td id="profileName">${fullName}</td>
+            </tr>
+            <tr>
+              <td><strong>Role:</strong></td>
+              <td>Professor</td>
+            </tr>
+            <tr>
+              <td><strong>Department:</strong></td>
+              <td id="profileDept">Computer Science & Engineering</td>
+            </tr>
+            <tr>
+              <td><strong>Email:</strong></td>
+              <td id="profileEmail">faculty@college.edu</td>
+            </tr>
+            <tr>
+              <td><strong>Phone:</strong></td>
+              <td id="profilePhone">+91 9876543210</td>
+            </tr>
+            <tr>
+              <td><strong>Office:</strong></td>
+              <td id="profileOffice">Block A, Room 302</td>
+            </tr>
+          </table>
+          <div style="margin-top: 20px;">
+            <button class="btn editProfile" style="background-color:#007bff;color:#fff;padding:8px 14px;border-radius:5px;margin-right:10px;">Edit Profile</button>
+            <button class="btn changePassword" style="background-color:#28a745;color:#fff;padding:8px 14px;border-radius:5px;">Change Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+// EDIT PROFILE
+document.querySelector(".editProfile").addEventListener("click", () => {
+  const name = prompt("Edit Name:", document.getElementById("profileName").innerText);
+  const dept = prompt("Edit Department:", document.getElementById("profileDept").innerText);
+  const email = prompt("Edit Email:", document.getElementById("profileEmail").innerText);
+  const phone = prompt("Edit Phone:", document.getElementById("profilePhone").innerText);
+  const office = prompt("Edit Office:", document.getElementById("profileOffice").innerText);
+
+  if(name) document.getElementById("profileName").innerText = name;
+  if(dept) document.getElementById("profileDept").innerText = dept;
+  if(email) document.getElementById("profileEmail").innerText = email;
+  if(phone) document.getElementById("profilePhone").innerText = phone;
+  if(office) document.getElementById("profileOffice").innerText = office;
+});
+
+// CHANGE PASSWORD
+document.querySelector(".changePassword").addEventListener("click", () => {
+  const newPass = prompt("Enter New Password:");
+  if(newPass) alert("Password changed successfully!");
+});
+
+// CHANGE PROFILE PICTURE
+document.querySelector(".changePic").addEventListener("click", () => {
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/*";
+  fileInput.click();
+
+  fileInput.onchange = () => {
+    const file = fileInput.files[0];
+    if(file){
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById("profileImage").src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+});
+break;
+
+
+          default:
+            mainContent.innerHTML = `<div class="card"><p>Page not found.</p></div>`;
+        }
+      }
+
+      // Initialize charts
+      function initCharts() {
+        // Attendance Chart
+        const attendanceCtx = document.getElementById("attendanceChart").getContext("2d");
+        new Chart(attendanceCtx, {
+          type: "line",
+          data: {
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            datasets: [
+              {
+                label: "B.Tech CSE 3rd Year",
+                data: [92, 88, 95, 90, 96, 85],
+                borderColor: "#4e73df",
+                backgroundColor: "rgba(78, 115, 223, 0.05)",
+                tension: 0.3,
+                fill: true,
+              },
+              {
+                label: "B.Tech IT 2nd Year",
+                data: [85, 82, 88, 90, 87, 80],
+                borderColor: "#1cc88a",
+                backgroundColor: "rgba(28, 200, 138, 0.05)",
+                tension: 0.3,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: false,
+                min: 70,
+                max: 100,
+              },
+            },
+          },
+        });
+
+        // Grade Distribution Chart
+        const gradeCtx = document.getElementById("gradeChart").getContext("2d");
+        new Chart(gradeCtx, {
+          type: "doughnut",
+          data: {
+            labels: ["A+", "A", "B+", "B", "C", "F"],
+            datasets: [
+              {
+                data: [15, 25, 30, 20, 8, 2],
+                backgroundColor: [
+                  "#4e73df",
+                  "#1cc88a",
+                  "#36b9cc",
+                  "#f6c23e",
+                  "#e74a3b",
+                  "#5a5c69",
+                ],
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            cutout: "70%",
+            plugins: {
+              legend: {
+                position: "bottom",
+              },
+            },
+          },
+        });
+      }
+
+      // ✅ Load default page
+      loadPage("dashboard");
+    });
+    function loadStudents() {
+  const students = [
+    { id: "S001", name: "Rahul Sharma", program: "B.Tech CSE", year: "3rd Year", attendance: "94%" },
+    { id: "S002", name: "Priya Verma", program: "B.Tech IT", year: "2nd Year", attendance: "88%" },
+    { id: "S003", name: "Aman Gupta", program: "BBA", year: "1st Year", attendance: "91%" },
+    { id: "S004", name: "Neha Singh", program: "MCA", year: "1st Year", attendance: "96%" },
+  ];
+
+  const tableBody = document.querySelector("#studentsTable tbody");
+  tableBody.innerHTML = ""; // Clear old rows
+
+  students.forEach((s) => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${s.id}</td>
+      <td>${s.name}</td>
+      <td>${s.program}</td>
+      <td>${s.year}</td>
+      <td>${s.attendance}</td>
+      <td><button class="btn btn-primary view-btn">View</button></td>
+    `;
+
+    // Add click event dynamically
+    row.querySelector(".view-btn").addEventListener("click", () => {
+      alert(`Viewing ${s.name}'s profile`);
+    });
+
+    tableBody.appendChild(row);
+  });
+}
+
+document.querySelector("#attendanceSubmit").addEventListener("click", () => {
+  const rows = document.querySelectorAll("#attendanceTable tbody tr");
+  rows.forEach((row) => {
+    const student = row.cells[1].innerText;
+    const status = row.querySelector("select").value;
+    console.log(`${student}: ${status}`); // Here you can send to backend
+  });
+  alert("Attendance submitted!");
+});
+
+document.querySelectorAll(".btn").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    const action = btn.innerText.toLowerCase();
+    console.log("Button clicked:", action);
+    // call relevant functions here
+  });
+});
+fetch("/api/students")
+  .then(res => res.json())
+  .then(data => {
+    // dynamically populate table
+  });
+
+  
+
+  </script>
+</body>
+<script src="facult.js"></script>
+</html>

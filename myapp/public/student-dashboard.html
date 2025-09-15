@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="icon" type="image/png" href="jd.png" />
+  <link rel="stylesheet" href="student.css">
+  <title>Student Dashboard</title>
+</head>
+<body>
+  <!-- Menu toggle for mobile -->
+  <button class="menu-toggle" id="menuToggle">☰</button>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h2>CONNECT SR</h2>
+    <ul>
+      <li class="nav-item active" data-page="home">Home Profile</li>
+      <li class="nav-item" data-page="courses">Semester-Subject</li>
+      <li class="nav-item" data-page="faculty">My Faculty</li>
+      <li class="nav-item" data-page="lecture">My Lecture</li>
+      <li class="nav-item" data-page="assignments">Assignments</li>
+      <li class="nav-item" data-page="woocloud">WooCloud</li>
+      <li class="nav-item" data-page="notes">Notes</li>
+      <li class="nav-item" data-page="holidays">Holidays</li>
+      <li class="nav-item" data-page="library">Library</li>
+      <li class="nav-item" data-page="documents">Student Document</li>
+      <li class="nav-item" data-page="fee">Fee Detail</li>
+      <li class="nav-item" data-page="suggestions">Suggestion Box</li>
+      <li class="nav-item" data-page="hostel">Hostel</li>
+      <li class="nav-item" data-page="cafeteria">Cafeteria</li>
+      <li class="nav-item" data-page="hostel-attendance">Hostel Attendance</li>
+      <li class="nav-item" data-page="messages">Manage Message</li>
+      <li class="nav-item" data-page="password">Change Password</li>
+      <li class="nav-item" id="logout">Logout</li>
+    </ul>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Home Page -->
+    <div class="page-content active" id="home">
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-left">
+    <img src="image/jd.png" alt="Logo" class="logo">
+  </div>
+
+  <div class="nav-center">
+   <h2>JD College students Management Dashboard</h2>
+  </div>
+
+  <div class="nav-right">
+    <!-- <div class="search-box">
+      <input type="text" placeholder="Search...">
+      <button><i class="fas fa-search"></i></button>
+    </div> -->
+   <div class="profile" id="profile">
+    <img src="image/AudiCar.jpg" alt="User" class="profile-pic" id="profilePic">
+    <span class="login-text">Login</span>
+
+    <!-- Dropdown Menu -->
+     <div class="dropdown" id="dropdownMenu">
+      <div id="changePic"><i class="fa-solid fa-camera"></i> Change Profile</div>
+      <div id="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
+    </div>
+  </div>
+
+  <!-- File input for profile image -->
+  <input type="file" id="fileInput" accept="image/*">
+
+  <script>
+    const profile = document.getElementById("profile");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const fileInput = document.getElementById("fileInput");
+    const profilePic = document.getElementById("profilePic");
+
+    // Profile click → toggle dropdown
+    profile.addEventListener("click", () => {
+      dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+
+    // Change Profile option
+    document.getElementById("changePic").addEventListener("click", () => {
+      fileInput.click(); // open file browser
+    });
+
+    // File select hone par image change
+    fileInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          profilePic.src = e.target.result; // image change
+          localStorage.setItem("profileImage", e.target.result); // save to localStorage
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Logout option
+    document.getElementById("logout").addEventListener("click", () => {
+      alert("Logged Out ✅");
+      dropdownMenu.style.display = "none";
+    });
+
+    // Load saved profile image from localStorage
+    window.onload = function() {
+      const savedImage = localStorage.getItem("profileImage");
+      if (savedImage) {
+        profilePic.src = savedImage;
+      }
+    };
+  </script>
+  </div>
+</nav>
+
+
+<!-- FontAwesome for search icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+      
+      <!-- Top Cards -->
+      <div class="top-cards">
+       <div id="students-container"></div>
+
+<script>
+  // API se data fetch
+  fetch("/api/students")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("students-container");
+      container.innerHTML = "";
+
+      data.forEach(student => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+          <h3>${student.name}</h3>
+          <p><strong>Roll No:</strong> ${student.roll_no}</p>
+          <p><strong>Batch:</strong> ${student.batch}</p>
+          <p><strong>Course:</strong> ${student.course}</p>
+          <p><strong>Branch:</strong> ${student.branch}</p>
+          <p><strong>Semester:</strong> ${student.semester}</p>
+          <p><strong>Section:</strong> ${student.section}</p>
+          <p><strong>Attendance:</strong> ${student.attendance}%</p>
+        `;
+        container.appendChild(card);
+      });
+    })
+    .catch(err => console.error("Error fetching students:", err));
+</script>
+
+   <!-- Fee Card -->
+<div class="card green">
+  <h3>Fee Due: ₹124,893</h3>
+  <p><strong>Hostel:</strong> Alloted</p>
+  <button id="payBtn">Pay Now</button>
+</div>
+
+<!-- Hidden Payment Section -->
+<div class="payment-section" id="paymentSection">
+  <div class="payment-header">
+    <h3>Payment Section</h3>
+    <span class="close-btn" id="closeBtn">&times;</span>
+  </div>
+  
+  <p><strong>Amount Due:</strong> ₹124,893</p>
+
+  <form id="paymentForm">
+    <label>Card Holder Name</label>
+    <input type="text" placeholder="Enter name" required>
+
+    <label>Card Number</label>
+    <input type="text" maxlength="16" placeholder="xxxx xxxx xxxx xxxx" required>
+
+    <label>Expiry Date</label>
+    <input type="month" required>
+
+    <label>CVV</label>
+    <input type="password" maxlength="3" placeholder="***" required>
+
+    <button type="submit">Proceed to Pay</button>
+  </form>
+</div>
+
+        <div class="card purple">
+          <h3>Teacher-Guardian (TG)</h3>
+          <p><strong>Name:</strong> Mr Sonendra Singh Tomar</p>
+          <p><strong>Position:</strong> Administrative Officer</p>
+          <button>Message</button>
+        </div>
+      </div>
+
+      <!-- Classes & Attendance -->
+      <div class="content-section">
+        <!-- Classes -->
+       <div id="classList"></div>
+
+<script>
+  fetch("/api/classes")
+    .then(res => res.json())
+    .then(data => {
+      let html = "<div class='classes'><h3>My Classes – September 3, 2025</h3>";
+      data.forEach(c => {
+        html += `<div class="class-item"><span>${c.time}</span><span>${c.subject}</span></div>`;
+      });
+      html += "</div>";
+      document.getElementById("classList").innerHTML = html;
+    });
+</script>
+
+        <!-- Attendance -->
+        <div class="attendance">
+          <h3>My Attendance</h3>
+     <table id="attendanceTable">
+  <tr>
+    <th>Subject Code</th>
+    <th>Subject</th>
+    <th>Attendance</th>
+    <th>%</th>
+  </tr>
+</table>
+
+        </div>
+      </div>
+    </div>
+    
+    <!-- Courses Page -->
+    <div class="page-content" id="courses">
+      <div class="page-header">
+        <h2>Semester-Subject</h2>
+        <p>All your enrolled courses for this semester</p>
+      </div>
+      
+      <div class="course-grid">
+        <div class="course-card">
+          <h3>Analog & Digital Circuits Basics</h3>
+          <p><strong>Code:</strong> BMA101</p>
+          <p><strong>Instructor:</strong> Dr. Anjali Sharma</p>
+          <p><strong>Schedule:</strong> Mon, Wed, Fri (8:30-9:40)</p>
+          <p><strong>Credits:</strong> 4</p>
+          <button>View Details</button>
+        </div>
+        <div class="course-card">
+          <h3>Resource Management</h3>
+          <p><strong>Code:</strong> BCS101</p>
+          <p><strong>Instructor:</strong> Prof. Rajesh Kumar</p>
+          <p><strong>Schedule:</strong> Tue, Thu (10:50-11:50)</p>
+          <p><strong>Credits:</strong> 3</p>
+          <button>View Details</button>
+        </div>
+        <div class="course-card">
+          <h3>Artificial Intelligence & Cognitive Robotics</h3>
+          <p><strong>Code:</strong> BAS105</p>
+          <p><strong>Instructor:</strong> Ms. Priya Singh</p>
+          <p><strong>Schedule:</strong> Mon, Wed (10:50-11:50)</p>
+          <p><strong>Credits:</strong> 2</p>
+          <button>View Details</button>
+        </div>
+        <div class="course-card">
+          <h3>Natural Language Processing</h3>
+          <p><strong>Code:</strong> BEE101</p>
+          <p><strong>Instructor:</strong> Dr. Sanjay Verma</p>
+          <p><strong>Schedule:</strong> Tue, Thu, Fri (3:00-4:00)</p>
+          <p><strong>Credits:</strong> 4</p>
+          <button>View Details</button>
+        </div>
+         <div class="course-card">
+          <h3>Open Elective – 1</h3>
+          <p><strong>Code:</strong> BEE101</p>
+          <p><strong>Instructor:</strong> Dr. Sanjay Verma</p>
+          <p><strong>Schedule:</strong> Tue, Thu, Fri (3:00-4:00)</p>
+          <p><strong>Credits:</strong> 4</p>
+          <button>View Details</button>
+        </div>
+         <div class="course-card">
+          <h3>Open Elective – 3</h3>
+          <p><strong>Code:</strong> BEE101</p>
+          <p><strong>Instructor:</strong> Dr. Sanjay Verma</p>
+          <p><strong>Schedule:</strong> Tue, Thu, Fri (3:00-4:00)</p>
+          <p><strong>Credits:</strong> 4</p>
+          <button>View Details</button>
+        </div>
+      </div>
+
+    </div>
+    
+    <!-- Faculty Page -->
+    <div class="page-content" id="faculty">
+      <div class="page-header">
+        <h2>My Faculty</h2>
+        <p>Contact information for your instructors</p>
+      </div>
+      
+ <div class="faculty-list">
+  <div class="faculty-item">
+    <h3>Dr. Anjali Sharma</h3>
+    <p><strong>Subject:</strong> ENGG. MATHS-I</p>
+    <p><strong>Email:</strong> asharma@connectsr.edu</p>
+    <p><strong>Office Hours:</strong> Mon, Wed (2:00-4:00 PM)</p>
+    <p class="phone" style="display:none;"><strong>Phone:</strong> +91 9876543245</p>
+    <button onclick="showPhone(this)">Contact-Us</button>
+  </div>
+
+  <div class="faculty-item">
+    <h3>Prof. Rajesh Kumar</h3>
+    <p><strong>Subject:</strong> Programming</p>
+    <p><strong>Email:</strong> rkumar@connectsr.edu</p>
+    <p><strong>Office Hours:</strong> Tue, Thu (3:00-5:00 PM)</p>
+    <p class="phone" style="display:none;"><strong>Phone:</strong> +91 9876543245</p>
+    <button onclick="showPhone(this)">Contact-Us</button>
+  </div>
+
+  <div class="faculty-item">
+    <h3>Ms. Priya Singh</h3>
+    <p><strong>Subject:</strong> Soft Skills</p>
+    <p><strong>Email:</strong> psingh@connectsr.edu</p>
+    <p><strong>Office Hours:</strong> Mon, Wed (12:00-1:00 PM)</p>
+    <p class="phone" style="display:none;"><strong>Phone:</strong> +91 9876543245</p>
+    <button onclick="showPhone(this)">Contact-Us</button>
+  </div>
+</div>
+
+    </div>
+    
+    <!-- Assignments Page -->
+  <div class="page-content" id="assignments">
+  <div class="page-header">
+    <h2>My Assignments</h2>
+    <p>Track your assignment progress and deadlines</p>
+  </div>
+
+  <div class="assignment-item">
+    <h3>Mathematics Problem Set #3</h3>
+    <p><strong>Course:</strong> ENGG. MATHS-I</p>
+    <p><strong>Due Date:</strong> September 10, 2025</p>
+    <p><strong>Status:</strong> <span class="status-badge status-pending">Pending</span></p>
+    <button onclick="viewAssignment('Mathematics Problem Set #3')">View Assignment</button>
+    <button onclick="submitWork('Mathematics Problem Set #3')">Submit Work</button>
+    <button onclick="uploadFile('Mathematics Problem Set #3')">Upload</button>
+  </div>
+
+  <div class="assignment-item">
+    <h3>Programming Project: Calculator App</h3>
+    <p><strong>Course:</strong> Programming</p>
+    <p><strong>Due Date:</strong> September 15, 2025</p>
+    <p><strong>Status:</strong> <span class="status-badge status-completed">Completed</span></p>
+    <button onclick="viewAssignment('Calculator App')">View Assignment</button>
+    <button onclick="viewSubmission('Calculator App')">View Submission</button>
+    <button onclick="uploadFile('Calculator App')">Upload</button>
+  </div>
+
+  <div class="assignment-item">
+    <h3>Electrical Circuits Analysis</h3>
+    <p><strong>Course:</strong> Fundamentals of Electrical Engg</p>
+    <p><strong>Due Date:</strong> September 5, 2025</p>
+    <p><strong>Status:</strong> <span class="status-badge status-late">Late</span></p>
+    <button onclick="viewAssignment('Electrical Circuits Analysis')">View Assignment</button>
+    <button onclick="submitWork('Electrical Circuits Analysis')">Submit Work</button>
+    <button onclick="uploadFile('Electrical Circuits Analysis')">Upload</button>
+  </div>
+</div>
+
+<script>
+  function viewAssignment(name) {
+    alert("📖 Viewing " + name);
+  }
+
+  function submitWork(name) {
+    alert("✅ Submitting work for " + name);
+  }
+
+  function viewSubmission(name) {
+    alert("📂 Viewing submission for " + name);
+  }
+
+  function uploadFile(name) {
+    // File input create karna
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".pdf,.doc,.docx,.zip,.jpg,.png"; // allowed files
+    input.onchange = e => {
+      const file = e.target.files[0];
+      if (file) {
+        alert("📤 " + file.name + " uploaded for " + name);
+      }
+    };
+    input.click(); // file dialog open karega
+  }
+</script>
+
+    
+    <!-- Lecture Page -->
+    <div class="page-content" id="lecture">
+      <div class="page-header">
+        <h2>My Lectures</h2>
+        <p>Access your lecture materials and schedules</p>
+      </div>
+      
+      <div class="card">
+        <h3>Upcoming Lectures</h3>
+        <div class="class-item">
+          <span>Tomorrow, 8:30am</span>
+          <span>ENGG. MATHS-I - Differential Equations</span>
+          <button>Materials</button>
+        </div>
+        <div class="class-item">
+          <span>Tomorrow, 10:50am</span>
+          <span>Programming - Object Oriented Concepts</span>
+          <button>Materials</button>
+        </div>
+        <div class="class-item">
+          <span>Day after tomorrow, 9:40am</span>
+          <span>Personality Development - Communication Skills</span>
+          <button>Materials</button>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 20px;">
+        <h3>Lecture Archive</h3>
+        <p>Access past lecture recordings and materials</p>
+        <div class="form-group">
+          <select class="form-control">
+            <option>Select Course</option>
+            <option>ENGG. MATHS-I</option>
+            <option>Programming</option>
+            <option>Soft Skills</option>
+            <option>Fundamentals of Electrical Engg</option>
+          </select>
+        </div>
+        <button class="btn btn-primary">Browse Archive</button>
+      </div>
+    </div>
+    
+    <!-- WooCloud Page -->
+    <div class="page-content" id="woocloud">
+      <div class="page-header">
+        <h2>WooCloud</h2>
+        <p>Access your WooCloud resources and materials</p>
+      </div>
+      
+      <div class="course-grid">
+        <div class="course-card">
+          <h3>ENGG. MATHS-I Resources</h3>
+          <p><strong>Available:</strong> 12 documents, 5 videos</p>
+          <p><strong>Last updated:</strong> 2 days ago</p>
+          <button>Access Resources</button>
+        </div>
+        <div class="course-card">
+          <h3>Programming Resources</h3>
+          <p><strong>Available:</strong> 8 documents, 10 videos</p>
+          <p><strong>Last updated:</strong> Yesterday</p>
+          <button>Access Resources</button>
+        </div>
+        <div class="course-card">
+          <h3>Soft Skills Resources</h3>
+          <p><strong>Available:</strong> 5 documents, 3 videos</p>
+          <p><strong>Last updated:</strong> 1 week ago</p>
+          <button>Access Resources</button>
+        </div>
+        <div class="course-card">
+          <h3>Electrical Engg Resources</h3>
+          <p><strong>Available:</strong> 10 documents, 7 videos</p>
+          <p><strong>Last updated:</strong> 3 days ago</p>
+          <button>Access Resources</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Notes Page -->
+    <div class="page-content" id="notes">
+      <div class="page-header">
+        <h2>My Notes</h2>
+        <p>Your personal notes and study materials</p>
+      </div>
+      
+      <div class="card">
+        <h3>Create New Note</h3>
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Note Title">
+        </div>
+        <div class="form-group">
+          <select class="form-control">
+            <option>Select Course</option>
+            <option>ENGG. MATHS-I</option>
+            <option>Programming</option>
+            <option>Soft Skills</option>
+            <option>Fundamentals of Electrical Engg</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <textarea class="form-control" placeholder="Write your note here..." rows="4"></textarea>
+        </div>
+        <button class="btn btn-primary">Save Note</button>
+      </div>
+      
+      <div class="card" style="margin-top: 20px;">
+        <h3>Recent Notes</h3>
+        <div class="class-item">
+          <span>Differential Equations Formulas</span>
+          <span>ENGG. MATHS-I</span>
+          <button>Edit</button>
+        </div>
+        <div class="class-item">
+          <span>OOP Concepts Summary</span>
+          <span>Programming</span>
+          <button>Edit</button>
+        </div>
+        <div class="class-item">
+          <span>Circuit Analysis Theorems</span>
+          <span>Fundamentals of Electrical Engg</span>
+          <button>Edit</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Holidays Page -->
+    <div class="page-content" id="holidays">
+      <div class="page-header">
+        <h2>Holidays</h2>
+        <p>Upcoming holidays and breaks</p>
+      </div>
+      
+      <div class="card">
+        <h3>Academic Calendar 2025-2026</h3>
+        <table>
+          <tr>
+            <th>Date</th>
+            <th>Holiday</th>
+            <th>Duration</th>
+          </tr>
+          <tr>
+            <td>Oct 2, 2025</td>
+            <td>Gandhi Jayanti</td>
+            <td>1 day</td>
+          </tr>
+          <tr>
+            <td>Oct 20-27, 2025</td>
+            <td>Diwali Break</td>
+            <td>1 week</td>
+          </tr>
+          <tr>
+            <td>Dec 25, 2025</td>
+            <td>Christmas</td>
+            <td>1 day</td>
+          </tr>
+          <tr>
+            <td>Jan 26, 2026</td>
+            <td>Republic Day</td>
+            <td>1 day</td>
+          </tr>
+          <tr>
+            <td>Mar 15-31, 2026</td>
+            <td>End Semester Break</td>
+            <td>2 weeks</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Library Page -->
+    <div class="page-content" id="library">
+      <div class="page-header">
+        <h2>Library</h2>
+        <p>Access library resources and manage your borrowings</p>
+      </div>
+      
+      <div class="top-cards">
+        <div class="card">
+          <h3>Current Borrowings</h3>
+          <p><strong>Books issued:</strong> 3</p>
+          <p><strong>Overdue:</strong> 0</p>
+          <button>View All</button>
+        </div>
+        <div class="card green">
+          <h3>Search Library</h3>
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search books, journals...">
+          </div>
+          <button>Search</button>
+        </div>
+        <div class="card purple">
+          <h3>Digital Resources</h3>
+          <p>Access e-books, journals and online databases</p>
+          <button>Explore</button>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 20px;">
+        <h3>Recently Added Books</h3>
+        <table>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Subject</th>
+            <th>Availability</th>
+          </tr>
+          <tr>
+            <td>Advanced Engineering Mathematics</td>
+            <td>Erwin Kreyszig</td>
+            <td>Mathematics</td>
+            <td>Available</td>
+          </tr>
+          <tr>
+            <td>Introduction to Algorithms</td>
+            <td>Thomas H. Cormen</td>
+            <td>Computer Science</td>
+            <td>Available</td>
+          </tr>
+          <tr>
+            <td>Fundamentals of Electric Circuits</td>
+            <td>Charles K. Alexander</td>
+            <td>Electrical Engineering</td>
+            <td>Borrowed</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Additional pages would follow the same pattern -->
+    <div class="page-content" id="documents">
+      <div class="page-header">
+        <h2>Student Documents</h2>
+        <p>Access and manage your academic documents</p>
+      </div>
+      <div class="card">
+        <h3>Available Documents</h3>
+        <div class="class-item">
+          <span>ID Card</span>
+          <button>Download</button>
+        </div>
+        <div class="class-item">
+          <span>Fee Receipt (Current Semester)</span>
+          <button>Download</button>
+        </div>
+        <div class="class-item">
+          <span>Bonafide Certificate</span>
+          <button>Request</button>
+        </div>
+        <div class="class-item">
+          <span>Transcript</span>
+          <button>Request</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="page-content" id="fee">
+      <div class="page-header">
+        <h2>Fee Details</h2>
+        <p>View and manage your fee payments</p>
+      </div>
+      <div class="card">
+        <h3>Fee Summary</h3>
+        <p><strong>Total Fee:</strong> ₹150,000</p>
+        <p><strong>Paid:</strong> ₹25,107</p>
+        <p><strong>Due:</strong> ₹124,893</p>
+        <p><strong>Due Date:</strong> October 15, 2025</p>
+        <button>Pay Now</button>
+      </div>
+      
+      <div class="card" style="margin-top: 20px;">
+        <h3>Payment History</h3>
+        <table>
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Transaction ID</th>
+            <th>Status</th>
+          </tr>
+          <tr>
+            <td>Aug 15, 2025</td>
+            <td>₹25,107</td>
+            <td>TXN1872364</td>
+            <td>Completed</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    
+    <div class="page-content" id="suggestions">
+      <div class="page-header">
+        <h2>Suggestion Box</h2>
+        <p>Share your suggestions and feedback with us</p>
+      </div>
+      <div class="card">
+        <h3>Submit Suggestion</h3>
+        <div class="form-group">
+          <select class="form-control">
+            <option>Select Category</option>
+            <option>Academic</option>
+            <option>Infrastructure</option>
+            <option>Administrative</option>
+            <option>Hostel</option>
+            <option>Cafeteria</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <textarea class="form-control" placeholder="Write your suggestion here..." rows="5"></textarea>
+        </div>
+        <button class="btn btn-primary">Submit</button>
+      </div>
+      
+      <div class="card" style="margin-top: 20px;">
+        <h3>Previous Suggestions</h3>
+        <div class="class-item">
+          <span>Library hours extension</span>
+          <span class="status-badge status-completed">Addressed</span>
+        </div>
+        <div class="class-item">
+          <span>More water coolers in campus</span>
+          <span class="status-badge status-pending">In Review</span>
+        </div>
+        <div class="class-item">
+          <span>Wi-Fi connectivity issues in hostel</span>
+          <span class="status-badge status-completed">Addressed</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Additional pages for other menu items would go here -->
+    <div class="page-content" id="hostel">
+      <div class="page-header">
+        <h2>Hostel</h2>
+        <p>Hostel information and services</p>
+      </div>
+      <div class="card">
+        <h3>Hostel Details</h3>
+        <p><strong>Hostel:</strong> Boys Hostel Block B</p>
+        <p><strong>Room No:</strong> 215</p>
+        <p><strong>Warden:</strong> Mr. Ravi Kumar</p>
+        <p><strong>Contact:</strong> +91 9876543200</p>
+        <button>Request Maintenance</button>
+      </div>
+    </div>
+    
+    <div class="page-content" id="cafeteria">
+      <div class="page-header">
+        <h2>Cafeteria</h2>
+        <p>Menu and meal plans</p>
+      </div>
+      <div class="card">
+        <h3>Today's Menu</h3>
+        <p><strong>Breakfast:</strong> Poha, Tea, Bread Butter</p>
+        <p><strong>Lunch:</strong> Roti, Rice, Dal, Mixed Vegetable, Salad</p>
+        <p><strong>Snacks:</strong> Samosa, Tea</p>
+        <p><strong>Dinner:</strong> Roti, Rice, Kadhi, Potato Vegetable, Salad</p>
+      </div>
+    </div>
+    
+    <div class="page-content" id="hostel-attendance">
+      <div class="page-header">
+        <h2>Hostel Attendance</h2>
+        <p>Track your hostel attendance record</p>
+      </div>
+      <div class="card">
+        <h3>Monthly Attendance</h3>
+        <p><strong>September 2025:</strong> 85%</p>
+        <p><strong>August 2025:</strong> 92%</p>
+        <p><strong>July 2025:</strong> 78%</p>
+      </div>
+    </div>
+    
+    <div class="page-content" id="messages">
+      <div class="page-header">
+        <h2>Manage Messages</h2>
+        <p>Communicate with faculty and peers</p>
+      </div>
+      <div class="card">
+        <h3>Inbox</h3>
+        <div class="class-item">
+          <span>From: Dr. Anjali Sharma</span>
+          <span>Reminder: Mathematics quiz tomorrow</span>
+          <button>View</button>
+        </div>
+        <div class="class-item">
+          <span>From: Hostel Administration</span>
+          <span>Hostel maintenance notice</span>
+          <button>View</button>
+        </div>
+        <div class="class-item">
+          <span>From: Library</span>
+          <span>Book return reminder</span>
+          <button>View</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="page-content" id="password">
+      <div class="page-header">
+        <h2>Change Password</h2>
+        <p>Update your login password</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" class="form-control">
+        </div>
+        <button class="btn btn-primary">Update Password</button>
+      </div>
+    </div>
+    
+  </div>
+
+
+  <!-- ✅ JavaScript (put this at the END, before </body>) -->
+<script>
+   function showPhone(button) {
+    let phone = button.parentElement.querySelector(".phone");
+    if (phone.style.display === "none") {
+      phone.style.display = "block";   // show number
+      button.textContent = "Hide Number"; // button text change
+    } else {
+      phone.style.display = "none";   // hide number
+      button.textContent = "Contact-Us"; 
+    }
+  }
+  const payBtn = document.getElementById("payBtn");
+  const closeBtn = document.getElementById("closeBtn");
+  const paymentSection = document.getElementById("paymentSection");
+  const paymentForm = document.getElementById("paymentForm");
+
+  // Open Payment Section
+  payBtn.addEventListener("click", () => {
+    paymentSection.classList.add("show");
+  });
+
+  // Close Payment Section
+  closeBtn.addEventListener("click", () => {
+    paymentSection.classList.remove("show");
+  });
+
+  // Form Submit
+  paymentForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    alert("Payment Successful ✅");
+    paymentSection.classList.remove("show");
+  });
+</script>
+  <script>
+
+    // Navigation functionality
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function() {
+        if (this.id === 'logout') {
+          if (confirm('Are you sure you want to logout?')) {
+            alert('Logging out...');
+            // In a real application, this would redirect to logout URL
+          }
+          return;
+        }
+        
+        // Remove active class from all items
+        document.querySelectorAll('.nav-item').forEach(nav => {
+          nav.classList.remove('active');
+        });
+        
+        // Add active class to clicked item
+        this.classList.add('active');
+        
+        // Hide all pages
+        document.querySelectorAll('.page-content').forEach(page => {
+          page.classList.remove('active');
+        });
+        
+        // Show the selected page
+        const pageId = this.getAttribute('data-page');
+        document.getElementById(pageId).classList.add('active');
+        
+        // Close sidebar on mobile after selection
+        if (window.innerWidth <= 768) {
+          document.getElementById('sidebar').classList.remove('open');
+        }
+        
+        // Scroll to top when navigating
+        window.scrollTo(0, 0);
+      });
+    });
+    
+    // Mobile menu toggle
+    document.getElementById('menuToggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+    
+    // Dynamic color coding for attendance
+    document.querySelectorAll(".progress").forEach(p => {
+      let val = parseInt(p.innerText);
+      if (val >= 75) {
+        p.style.borderColor = "green";
+        p.style.color = "green";
+      } else if (val >= 50) {
+        p.style.borderColor = "orange";
+        p.style.color = "orange";
+      } else {
+        p.style.borderColor = "red";
+        p.style.color = "red";
+      }
+    });
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const menuToggle = document.getElementById('menuToggle');
+      
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !menuToggle.contains(event.target) &&
+          sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+    
+    // Simulate form submissions
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Form submitted successfully!');
+      });
+    });
+
+   
+  </script>
+  
+<script>
+async function loadAttendance() {
+  try {
+    // server se data fetch
+    let res = await fetch("/api/attendance");
+    let data = await res.json();
+
+    const table = document.getElementById("attendanceTable");
+
+    data.forEach((item) => {
+      let percent = item.total > 0 ? Math.round((item.attended / item.total) * 100) : 0;
+
+      let row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.code}</td>
+        <td>${item.subject}</td>
+        <td>${item.attended}/${item.total}</td>
+        <td><div class="progress">${percent}%</div></td>
+      `;
+      table.appendChild(row);
+    });
+
+    // color code
+    document.querySelectorAll(".progress").forEach(p => {
+      let val = parseInt(p.innerText);
+      if(val >= 75) p.style.borderColor = "green";
+      else if(val >= 50) p.style.borderColor = "orange";
+      else p.style.borderColor = "red";
+    });
+
+  } catch (err) {
+    console.error("Error loading attendance", err);
+  }
+}
+
+// call on load
+loadAttendance();
+</script>
+
+  <script>
+  // Sidebar toggle for mobile
+  const menuToggle = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+
+  menuToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("open");
+  });
+
+  // Navigation system
+  const navItems = document.querySelectorAll(".nav-item");
+  const pages = document.querySelectorAll(".page-content");
+
+  navItems.forEach(item => {
+    item.addEventListener("click", () => {
+      // remove active from all
+      navItems.forEach(i => i.classList.remove("active"));
+      pages.forEach(p => p.classList.remove("active"));
+
+      // add active to clicked nav
+      item.classList.add("active");
+      const pageId = item.getAttribute("data-page");
+      document.getElementById(pageId).classList.add("active");
+
+      // close sidebar on mobile after selection
+      if(window.innerWidth <= 768){
+        sidebar.classList.remove("open");
+      }
+    });
+  });
+
+  // Attendance progress color coding
+  document.querySelectorAll(".progress").forEach(p => {
+    let val = parseInt(p.innerText);
+    if(val >= 75) { p.style.borderColor = "green"; }
+    else if(val >= 50) { p.style.borderColor = "orange"; }
+    else { p.style.borderColor = "red"; }
+  });
+</script>
+
+</body>
+</html>
+
+
+
+
